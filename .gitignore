@@ -1,0 +1,15 @@
+.idea/*
+cmake-*
+cmake-build-*
+.idea
+BUILD
+#.mbed
+core
+mbed_settings.pyc
+config.h
+cmake-build-debug/
+.temp
+*.iml
+Debug
+.cproject
+.project
