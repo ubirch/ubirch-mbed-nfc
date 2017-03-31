@@ -35,9 +35,9 @@
  * the porting guide for further information regarding the functions in
  * this module.
  */
-
-#include "../../inc/global_types.h"
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 /***********************************************************************/
 /* API DESCRIPTION                                                     */
 /***********************************************************************/
@@ -135,10 +135,11 @@ HAL_I2C_STATUS_T HAL_I2C_SendBytes(HAL_I2C_HANDLE_T i2cbus, uint8_t address, con
 
 //#include "../../HAL_I2C/inc/HAL_I2C_K82.h"
 
-uint16_t uNFC_recv(uint8_t address, uint8_t *bytes, uint8_t len);
-uint16_t uNFC_send(uint8_t address, const uint8_t *bytes, uint8_t len);
-
 #define HAL_I2C_HANDLE_T            void*
+
+uint16_t uNFC_recv(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len);
+
+uint16_t uNFC_send(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len);
 //#define HAL_I2C_FAKE_HANDLE         (void *) 0xDEADBEEF
 #define HAL_I2C_INIT_PARAM_T        uint32_t
 //#define HAL_I2C_INIT_DEFAULT        370000
@@ -151,7 +152,10 @@ uint16_t uNFC_send(uint8_t address, const uint8_t *bytes, uint8_t len);
 #define HAL_I2C_CloseDevice(handle) /* not necessary */
 #define HAL_I2C_RX_RESERVED_BYTES   1
 #define HAL_I2C_TX_RESERVED_BYTES   0
-//}
+
+#ifdef __cplusplus
+}
+#endif
 // /
 ///***********************************************************************/
 ///* INTERFACING FOR LPC11U68 - MACRO BASED EXAMPLE                      */

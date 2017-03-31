@@ -26,68 +26,60 @@
 ****************************************************************************
 */
 
+#include "stdint.h"
+/** @file HAL_timer_driver.h
+ * \brief Public interface to access the timing hardware.
+ */
+#ifndef _HAL_TIMER_DRIVER_H_
+#define _HAL_TIMER_DRIVER_H_
+
 /***********************************************************************/
 /* INCLUDES                                                            */
 /***********************************************************************/
-
-#include <stdint.h>
-#include <stdio.h>
-#include "HAL_I2C_driver.h"
-#include "HAL_Timer_driver.h"
 
 /***********************************************************************/
 /* DEFINES                                                             */
 /***********************************************************************/
 /***********************************************************************/
-/* LOCAL TYPES                                                         */
+/* TYPES                                                               */
 /***********************************************************************/
 /***********************************************************************/
 /* GLOBAL VARIABLES                                                    */
 /***********************************************************************/
-extern LPC_HANDLE handle;
 /***********************************************************************/
-/* LOCAL FUNCTION PROTOTYPES                                           */
+/* GLOBAL FUNCTION PROTOTYPES                                          */
 /***********************************************************************/
-/***********************************************************************/
-/* GLOBAL FUNCTIONS                                                    */
-/***********************************************************************/
-HAL_I2C_HANDLE_T HAL_I2C_InitDevice(HAL_I2C_INIT_PARAM_T bitrate)
-{
-    I2C_PORTCONFIG_T config;
 
-    I2C_Reset(handle);
+/**
+ * \brief initialize the timing hardware
+ *
+ * This function prepares the timing hardware to points where calling
+ * any of the following delay functions guarantees at least the desired delay
+ * time while not blocking indefinitely.
+ *
+ * \return		none
+ */
+void HAL_Timer_Init();
 
-    config.ClockRate = bitrate;
-    config.Options = 0;  
+/**
+ * \brief wait for the specified number of milliseconds
+ *
+ * This function delays the current thread of execution for at least the
+ * number of specified milliseconds. In tasked or threaded environments
+ * this function may additionally yield the CPU.
+ *
+ * \param	ms	wait time in milliseconds
+ * \return		none
+ */
+void HAL_Timer_delay_ms(uint32_t ms);
 
-    I2C_Init(handle, &config);
+/**
+ * \brief returns the current time in ms
+ *
+ * This function returns the current value of the ms tick timer.
+ *
+ * \return		current time in ms
+ */
+uint32_t HAL_Timer_getTime_ms();
 
-    return handle;
-}
-
-HAL_I2C_STATUS_T HAL_I2C_RecvBytes(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len)
-{
-    if( len == I2C_DeviceRead(i2cbus, address, bytes, len, HAL_I2C_TRANSFER_OPTION) )
-        return FALSE;
-    printf("Read failed: %ls\n", I2C_Error(handle));
-    return TRUE;
-}
-
-HAL_I2C_STATUS_T HAL_I2C_SendBytes(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len)
-{
-    int32_t retval = I2C_DeviceWrite(i2cbus, address, (uint8_t *) bytes, len, HAL_I2C_TRANSFER_OPTION);
-    if( len == retval)
-        return FALSE;
-    printf("Write failed: %ls\n", I2C_Error(handle));
-    return TRUE;
-}
-
-void HAL_I2C_Reset()
-{
-}
-/***********************************************************************/
-/* LOCAL FUNCTIONS                                                     */
-/***********************************************************************/
-/***********************************************************************/
-/* INTERUPT SERVICE ROUTINES                                           */
-/***********************************************************************/
+#endif /* _HAL_TIMER_DRIVER_H_ */

@@ -3,85 +3,11 @@
 //#include <rfid_api_full.h>
 //#include <ntag_driver_intern.h>
 //#include <curses.h>
-#include "../NTAG_I2C_API/src/inc/rfid_api_full.h"
 #include "mbed.h"
-//#include "nfc_defines.h"
-
-//#include "../NTAG_I2C_API/src/HAL_I2C/inc/HAL_I2C_K82.h"
-#include "../NTAG_I2C_API/src/HAL_I2C/inc/HAL_I2C_driver.h"
-//#include "../NTAG_I2C_API/src/HAL_NTAG/inc/ntag_driver.h"
-
-#include "../NTAG_I2C_API/src/HAL_NTAG/inc/ntag_bridge.h"
-
-//################################################
-//#ifndef NFC_DEVICE_H
-//#define NFC_DEVICE_H
-
-#if 0
-//#define HAVE_NTAG_INTERRUPT 0
-struct nNTAG_DEVICE
-{
-    NTAG_STATUS_T status;
-    HAL_I2C_HANDLE_T i2cbus;
-    uint8_t address;
-//#ifdef HAVE_NTAG_INTERRUPT
-//    ISR_SOURCE_T isr;
-//#endif
-    uint8_t tx_buffer[TX_START+NTAG_BLOCK_SIZE+NTAG_ADDRESS_SIZE];
-    uint8_t rx_buffer[RX_START+NTAG_BLOCK_SIZE];
-} ntpa;
-//#include "demo_settings.h"
-
-#  define NFC_TEST_DEVICE         NTAG0
-#  define NFC_ID_MAX_DEVICES      NTAG_ID_MAX_DEVICES
-#  define NFC_INVALID_HANDLE      NTAG_INVALID_HANDLE
-#  define NFC_HANDLE_T            NTAG_HANDLE_T
-#  define NFC_InitDevice          NTAG_InitDevice
-#  define NFC_CloseDevice         NTAG_CloseDevice
-#  define NFC_ReadBytes           NTAG_ReadBytes
-#  define NFC_WriteBytes          NTAG_WriteBytes
-#  define NFC_GetLastError        NTAG_GetLastError
-#  define NFC_WaitForEvent        NTAG_WaitForEvent
-#  define NFC_ReadRegister        NTAG_ReadRegister
-#  define NFC_WriteRegister       NTAG_WriteRegister
-
-#  define NFC_ReadRegister 	      NTAG_ReadRegister
-#  define NFC_DisableSRAM         NTAG_DisableSRAM
-#  define NFC_EnableSRAM          NTAG_EnableSRAM
-#  define NFC_SetPassThroughRFtoI2C NTAG_SetPassThroughRFtoI2C
-#  define NFC_SetPassThroughRFtoI2C_withEn NTAG_SetPassThroughRFtoI2C_withEn
-#  define NFC_SetPassThroughI2CtoRF NTAG_SetPassThroughI2CtoRF
-
-#  define NFC_BLOCK_SIZE          NTAG_BLOCK_SIZE
-#  define NFC_MEM_SIZE_SRAM	      NTAG_MEM_SIZE_SRAM
-#  define NFC_MEM_START_ADDR_SRAM         NTAG_MEM_START_ADDR_SRAM
-#  define NFC_MEM_START_ADDR_USER_MEMORY  NTAG_MEM_START_ADDR_USER_MEMORY
-#  define NFC_MEM_OFFSET_NC_REG   NTAG_MEM_OFFSET_NC_REG
-#  define NFC_MEM_OFFSET_NS_REG   NTAG_MEM_OFFSET_NS_REG
-#  define NFC_NC_REG_MASK_TR_SRAM_ON_OFF  NTAG_NC_REG_MASK_TR_SRAM_ON_OFF
-#  define NFC_NS_REG_MASK_I2C_IF_ON_OFF   NTAG_NS_REG_MASK_I2C_IF_ON_OFF
-
-
-//switch between Interrupt and Polling mode
-//#define INTERRUPT
-#ifdef INTERRUPT
-#define NTAG_EVENT_RF_WROTE_SRAM       NTAG_EVENT_RF_WROTE_SRAM_INTERRUPT
-#define NTAG_EVENT_RF_READ_SRAM        NTAG_EVENT_RF_READ_SRAM_INTERRUPT
-#define NTAG_EVENT_FIELD_DETECTED      NTAG_EVENT_FIELD_DETECTED_INTERRUPT
-#else
-#define NTAG_EVENT_RF_WROTE_SRAM       NTAG_EVENT_RF_WROTE_SRAM_POLLED
-#define NTAG_EVENT_RF_READ_SRAM        NTAG_EVENT_RF_READ_SRAM_POLLED
-#define NTAG_EVENT_FIELD_DETECTED      NTAG_EVENT_FIELD_DETECTED_POLLED
-#endif
-
-#define SRAM_TIMEOUT 500
-
-#endif
-
-//################################################
-
-#  define NFC_HANDLE_T            NTAG_HANDLE_T
-//NFC_HANDLE_T ntag_handle;
+#include "ntag_defines.h"
+#include "ntag_driver.h"
+#include "HAL_timer_driver.h"
+#include "HAL_I2C_driver.h"
 
 #define NFC_SDA I2C_SDA
 #define NFC_SCL I2C_SCL
@@ -107,58 +33,26 @@ void dbg_dump(const char *prefix, const uint8_t *b, size_t size) {
     }
 }
 
-//#if 1
+void HAL_Timer_delay_ms(uint32_t ms){
+    wait_ms(ms);
+}
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 
-#  define NFC_TEST_DEVICE         NTAG0
-#  define NFC_ID_MAX_DEVICES      NTAG_ID_MAX_DEVICES
-#  define NFC_INVALID_HANDLE      NTAG_INVALID_HANDLE
-#  define NFC_HANDLE_T            NTAG_HANDLE_T
-#  define NFC_InitDevice          NTAG_InitDevice
-#  define NFC_CloseDevice         NTAG_CloseDevice
-#  define NFC_ReadBytes           NTAG_ReadBytes
-#  define NFC_WriteBytes          NTAG_WriteBytes
-#  define NFC_GetLastError        NTAG_GetLastError
-#  define NFC_WaitForEvent        NTAG_WaitForEvent
-#  define NFC_ReadRegister        NTAG_ReadRegister
-#  define NFC_WriteRegister       NTAG_WriteRegister
-
-#  define NFC_ReadRegister          NTAG_ReadRegister
-#  define NFC_DisableSRAM         NTAG_DisableSRAM
-#  define NFC_EnableSRAM          NTAG_EnableSRAM
-#  define NFC_SetPassThroughRFtoI2C NTAG_SetPassThroughRFtoI2C
-#  define NFC_SetPassThroughRFtoI2C_withEn NTAG_SetPassThroughRFtoI2C_withEn
-#  define NFC_SetPassThroughI2CtoRF NTAG_SetPassThroughI2CtoRF
-
-#  define NFC_BLOCK_SIZE          NTAG_BLOCK_SIZE
-#  define NFC_MEM_SIZE_SRAM          NTAG_MEM_SIZE_SRAM
-#  define NFC_MEM_START_ADDR_SRAM         NTAG_MEM_START_ADDR_SRAM
-#  define NFC_MEM_START_ADDR_USER_MEMORY  NTAG_MEM_START_ADDR_USER_MEMORY
-#  define NFC_MEM_OFFSET_NC_REG   NTAG_MEM_OFFSET_NC_REG
-#  define NFC_MEM_OFFSET_NS_REG   NTAG_MEM_OFFSET_NS_REG
-#  define NFC_NC_REG_MASK_TR_SRAM_ON_OFF  NTAG_NC_REG_MASK_TR_SRAM_ON_OFF
-#  define NFC_NS_REG_MASK_I2C_IF_ON_OFF   NTAG_NS_REG_MASK_I2C_IF_ON_OFF
-
-#define SRAM_TIMEOUT 500
-//HAL_I2C_STATUS_T uNFC_send(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len);
-//HAL_I2C_STATUS_T uNFC_recv(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len);
-
-//extern "C" {
-HAL_I2C_STATUS_T uNFC_send(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len) {
+uint16_t uNFC_send(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len) {
     int ret = nfc_i2c.write(address, (char *) bytes, len);
     return (uint16_t) ret;
 }
 
-HAL_I2C_STATUS_T uNFC_recv(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len) {
+uint16_t uNFC_recv(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len) {
     int ret = nfc_i2c.read(address, (char *) bytes, len);
     return (uint16_t) ret;
 }
+#ifdef __cplusplus
 }
-
-//} // extern "C"
-
-//#endif
+#endif
 
 void led_thread(void const *args) {
     while (true) {
@@ -170,77 +64,40 @@ osThreadDef(led_thread, osPriorityNormal, DEFAULT_STACK_SIZE);
 
 DigitalOut extPower(PTC8);
 
-#define NTAG_MEM_BLOCK_SESSION_REGS                    0xFE
-
-#define NTAG_MEM_OFFSET_NC_REG                         0x00
-#define NTAG_NC_REG_MASK_TR_SRAM_ON_OFF                0x40
-//return NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_NC_REG, NTAG_NC_REG_MASK_TR_SRAM_ON_OFF,
-//NTAG_NC_REG_MASK_TR_SRAM_ON_OFF);
-
-
-//BOOL NTAG_ReadRegister (NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val)
-//{
-//
-//    ntag->tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
-//    ntag->tx_buffer[TX_START+1] = reg;
-//
-//    /* send block number */
-//    if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 2) )
-//    {
-//        ntag->status = NTAG_ERROR_TX_FAILED;
-//        return TRUE;
-//    }
-//
-//    /* receive bytes */
-//    if( HAL_I2C_OK != HAL_I2C_RecvBytes(ntag->i2cbus, ntag->address, ntag->rx_buffer, 1) )
-//    {
-//        ntag->status = NTAG_ERROR_RX_FAILED;
-//        return TRUE;
-//    }
-//
-//    *val = ntag->rx_buffer[RX_START+0];
-//    return FALSE;
-//}
-
-//BOOL NTAG_WriteRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t val)
-//{
-//    ntag->tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
-//    ntag->tx_buffer[TX_START+1] = reg;
-//    ntag->tx_buffer[TX_START+2] = mask;
-//    ntag->tx_buffer[TX_START+3] = val;
-//
-//    if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 4) )
-//    {
-//        ntag->status = NTAG_ERROR_TX_FAILED;
-//        return TRUE;
-//    }
-//
-//    return FALSE;
-//}
-
-#define NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF            0x02
-
-#define NTAG_BLOCK_SIZE                                0x10
-
-#define NTAG_MEM_BLOCK_START_ADDR_USER_MEMORY          0x01
-#define NTAG_MEM_START_ADDR_USER_MEMORY                NTAG_MEM_BLOCK_START_ADDR_USER_MEMORY*NTAG_BLOCK_SIZE
-
 int main() {
+
+    NTAG_HANDLE_T ntag;
+
     osThreadCreate(osThread(led_thread), NULL);
+
     printf("Lets write to the NFC\r\n");
 
     extPower.write(1);
-    // Initialize main buffer used to read and write user memory
-//    uint8_t rxbuffer[4 * NTAG_BLOCK_SIZE];
-//    uint8_t txbuffer[2 * NTAG_BLOCK_SIZE];
-//    memset(rxbuffer, 0, 4 * NTAG_BLOCK_SIZE);
-//    memset(txbuffer, 0, 2 * NTAG_BLOCK_SIZE);
 
-    while (1) {
+
+    while(1) {
+        int err = NTAG_ERR_OK;
+        uint8_t current_ses_reg = 0;
+        err = NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &current_ses_reg);
+        if (current_ses_reg & NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF) {
+            current_ses_reg &= ~NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF;
+            err = NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_NC_REG,
+                                     NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF, current_ses_reg);
+            printf("sram on\r\n");
+        } else {
+            current_ses_reg |= NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF;
+            err = NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_NC_REG,
+                                     NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF, current_ses_reg);
+            printf("sram off\r\n");
+        }
+        printf("ss\r\n");
+    }
+#if 0
+//    while (1) {
         char reg[18] = {0};
         reg[0] = 0x05;
 
-        int TX_START = 1;
+//        int TX_START = 1;
         uint8_t tx_buffer[32];
 
 //        tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
@@ -253,7 +110,7 @@ int main() {
 //                           NTAG_NC_REG_MASK_TR_SRAM_ON_OFF);
 //        extern "C" {
 
-        NFC_DisableSRAM(ntag);
+//        NFC_DisableSRAM(ntag);
 
 //            NTAG_EnableSRAM(ntag);
 //        }
@@ -331,8 +188,8 @@ int main() {
 
 //        dbg_dump("NFC", reg, 7);
 //        printf("\r\n");
-        wait(1);
-    }
+//        wait(1);
+//    }
     // prepare defined state for SRAM
 //    NFC_DisableSRAM(ntag_handle);
 
@@ -340,7 +197,8 @@ int main() {
 //    NFC_ReadBytes(ntag_handle, NFC_MEM_START_ADDR_USER_MEMORY, rxbuffer,
 //                  4 * NFC_BLOCK_SIZE);
 
+#endif
+
 }
 
 
-//#endif

@@ -121,12 +121,14 @@ foreach (DIR in ${NTAG})
             list(APPEND NTAG_SRCS ${includes})
 endforeach ()
 
-add_library(ntag_i2c ${NTAG_SRCS})
-include_directories(${NTAG})
+#add_library(ntag_i2c ${NTAG_SRCS})
+#include_directories(${NTAG})
 
 
-add_executable(ntag source/main.cpp)
-target_link_libraries(ntag mbed-os ntag_i2c)
+add_executable(ntag source/main.cpp
+            source/ntag_driver.c
+        )
+target_link_libraries(ntag mbed-os)
 
 add_custom_target(relay-compile ALL
         COMMAND mbed compile --profile mbed-os/tools/profiles/debug.json

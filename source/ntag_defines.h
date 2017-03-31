@@ -34,6 +34,19 @@
 extern "C" {
 #endif
 
+//#ifndef BOOL
+//#  define BOOL bool
+//#endif
+//#ifndef HAVE_STDINT_H
+//#  include <stdint.h>
+//#endif
+//
+//#ifndef HAVE_STDBOOL_H
+//#include <stdbool.h>
+//#endif /* HAVE_STDBOOL_H */
+//#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+
+
 #define NTAG_MAX_WRITE_DELAY_MS 					   10
 
 #define NTAG_BLOCK_SIZE                                0x10

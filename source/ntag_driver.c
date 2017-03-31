@@ -28,61 +28,66 @@
 /***********************************************************************/
 /* INCLUDES                                                            */
 /***********************************************************************/
+#include <stddef.h>
+#include <targets/TARGET_Freescale/TARGET_KSDK2_MCUS/TARGET_K82F/drivers/fsl_common.h>
 #include "HAL_timer_driver.h"
-#include "ntag_driver_intern.h"
-
+#include "ntag_defines.h"
+#include "ntag_driver.h"
+#include "HAL_I2C_driver.h"
 /***********************************************************************/
 /* DEFINES                                                             */
 /***********************************************************************/
-#undef NTAG_DEVICE_LIST_BEGIN
-#undef NTAG_DEVICE_ENTRY
-#undef NTAG_DEVICE_LIST_END
+//#undef NTAG_DEVICE_LIST_BEGIN
+//#undef NTAG_DEVICE_ENTRY
+//#undef NTAG_DEVICE_LIST_END
+//
+//#define NTAG_DEVICE_LIST_BEGIN                    struct NTAG_DEVICE ntag_device_list[NTAG_ID_MAX_DEVICES] = \
+//                                                  {
+//#ifdef HAVE_NTAG_INTERRUPT
+//#define NTAG_DEVICE_ENTRY(label, i2c_address, isr)     { NTAG_CLOSED, HAL_I2C_INVALID_HANDLE, i2c_address, isr, {0}, {0} }
+//#else
+//#define NTAG_DEVICE_ENTRY(label, i2c_address, isr)     { NTAG_CLOSED, HAL_I2C_INVALID_HANDLE, i2c_address, {0}, {0} }
+//#endif
+//
+//#define NTAG_DEVICE_LIST_END                      };
 
-#define NTAG_DEVICE_LIST_BEGIN                    struct NTAG_DEVICE ntag_device_list[NTAG_ID_MAX_DEVICES] = \
-                                                  {
-#ifdef HAVE_NTAG_INTERRUPT
-#define NTAG_DEVICE_ENTRY(label, i2c_address, isr)     { NTAG_CLOSED, HAL_I2C_INVALID_HANDLE, i2c_address, isr, {0}, {0} }
-#else
-#define NTAG_DEVICE_ENTRY(label, i2c_address, isr)     { NTAG_CLOSED, HAL_I2C_INVALID_HANDLE, i2c_address, {0}, {0} }
-#endif
-
-#define NTAG_DEVICE_LIST_END                      };
-
+#define TRUE 1
+#define FALSE 0
 /***********************************************************************/
 /* GLOBAL VARIABLES                                                    */
 /***********************************************************************/
 /* second include of device list for generation of ntag_device_list array */
-NTAG_DEVICE_LIST_BEGIN
-#include "ntag_device_list.h"
-NTAG_DEVICE_LIST_END
+//NTAG_DEVICE_LIST_BEGIN
+//#include "ntag_device_list.h"
+//NTAG_DEVICE_LIST_END
 
 /***********************************************************************/
 /* GLOBAL PUBLIC FUNCTIONS                                             */
 /***********************************************************************/
-NTAG_HANDLE_T NTAG_InitDevice(NTAG_ID_T ntag_id, HAL_I2C_HANDLE_T i2cbus)
-{
-	if( ntag_id < NTAG_ID_MAX_DEVICES )
-	{
-		if( ntag_device_list[ntag_id].status == NTAG_CLOSED )
-		{
-			ntag_device_list[ntag_id].i2cbus = i2cbus;
-			ntag_device_list[ntag_id].status = NTAG_OK;
-			return &ntag_device_list[ntag_id];
-		}
-	}
-	return NTAG_INVALID_HANDLE;
-}
+//NTAG_HANDLE_T NTAG_InitDevice(NTAG_ID_T ntag_id, HAL_I2C_HANDLE_T i2cbus)
+//{
+//	if( ntag_id < NTAG_ID_MAX_DEVICES )
+//	{
+//		if( ntag_device_list[ntag_id].status == NTAG_CLOSED )
+//		{
+//			ntag_device_list[ntag_id].i2cbus = i2cbus;
+//			ntag_device_list[ntag_id].status = NTAG_OK;
+//			return &ntag_device_list[ntag_id];
+//		}
+//	}
+//	return NTAG_INVALID_HANDLE;
+//}
 
-void NTAG_CloseDevice(NTAG_HANDLE_T ntag)
-{
-	if( ntag )
-	{
-		ntag->i2cbus = HAL_I2C_INVALID_HANDLE;
-		ntag->status = NTAG_CLOSED;
-	}
-}
+//void NTAG_CloseDevice(NTAG_HANDLE_T ntag)
+//{
+//	if( ntag )
+//	{
+//		ntag->i2cbus = HAL_I2C_INVALID_HANDLE;
+//		ntag->status = NTAG_CLOSED;
+//	}
+//}
 
-BOOL NTAG_ReadBytes(NTAG_HANDLE_T ntag, uint16_t address, uint8_t *bytes, uint16_t len)
+int NTAG_ReadBytes(NTAG_HANDLE_T ntag, uint16_t address, uint8_t *bytes, uint16_t len)
 {
 	uint16_t bytes_read = 0;
 
@@ -121,7 +126,7 @@ BOOL NTAG_ReadBytes(NTAG_HANDLE_T ntag, uint16_t address, uint8_t *bytes, uint16
 	return ntag->status;
 }
 
-BOOL NTAG_WriteBytes(NTAG_HANDLE_T ntag, uint16_t address, const uint8_t *bytes, uint16_t len)
+int NTAG_WriteBytes(NTAG_HANDLE_T ntag, uint16_t address, const uint8_t *bytes, uint16_t len)
 {
 	uint16_t bytes_written = 0;
 
@@ -171,7 +176,7 @@ BOOL NTAG_WriteBytes(NTAG_HANDLE_T ntag, uint16_t address, const uint8_t *bytes,
 	return ntag->status;
 }
 
-BOOL NTAG_ReadRegister (NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val)
+int NTAG_ReadRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val)
 {
 	ntag->tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
 	ntag->tx_buffer[TX_START+1] = reg;
@@ -194,7 +199,7 @@ BOOL NTAG_ReadRegister (NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val)
 	return FALSE;
 }
 
-BOOL NTAG_WriteRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t val)
+int NTAG_WriteRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t val)
 {
 	ntag->tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
 	ntag->tx_buffer[TX_START+1] = reg;
@@ -210,7 +215,7 @@ BOOL NTAG_WriteRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t v
 	return FALSE;
 }
 
-BOOL NTAG_WaitForEvent(NTAG_HANDLE_T ntag, NTAG_EVENT_T event, uint32_t timeout_ms)
+int NTAG_WaitForEvent(NTAG_HANDLE_T ntag, NTAG_EVENT_T event, uint32_t timeout_ms)
 {
 	uint8_t reg = 0;
 	uint8_t reg_mask = 0;
@@ -279,7 +284,7 @@ NTAG_STATUS_T NTAG_GetLastError(NTAG_HANDLE_T ntag)
 /***********************************************************************/
 /* GLOBAL PRIVATE FUNCTIONS                                            */
 /***********************************************************************/
-BOOL NTAG_ReadBlock(NTAG_HANDLE_T ntag, uint8_t block, uint8_t *bytes, uint8_t len)
+int NTAG_ReadBlock(NTAG_HANDLE_T ntag, uint8_t block, uint8_t *bytes, uint8_t len)
 {
 	size_t i = 0;
 
@@ -308,7 +313,7 @@ BOOL NTAG_ReadBlock(NTAG_HANDLE_T ntag, uint8_t block, uint8_t *bytes, uint8_t l
 	return FALSE;
 }
 
-BOOL NTAG_WriteBlock(NTAG_HANDLE_T ntag, uint8_t block, const uint8_t *bytes, uint8_t len)
+int NTAG_WriteBlock(NTAG_HANDLE_T ntag, uint8_t block, const uint8_t *bytes, uint8_t len)
 {
 	uint8_t ns_reg = 0;
 	uint32_t timeout = NTAG_MAX_WRITE_DELAY_MS / 5 + 1;
