@@ -211,46 +211,52 @@ DigitalOut extPower(PTC8);
 //NTAG_NC_REG_MASK_TR_SRAM_ON_OFF);
 
 
-BOOL NTAG_ReadRegister (NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val)
-{
+//BOOL NTAG_ReadRegister (NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val)
+//{
+//
+//    ntag->tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
+//    ntag->tx_buffer[TX_START+1] = reg;
+//
+//    /* send block number */
+//    if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 2) )
+//    {
+//        ntag->status = NTAG_ERROR_TX_FAILED;
+//        return TRUE;
+//    }
+//
+//    /* receive bytes */
+//    if( HAL_I2C_OK != HAL_I2C_RecvBytes(ntag->i2cbus, ntag->address, ntag->rx_buffer, 1) )
+//    {
+//        ntag->status = NTAG_ERROR_RX_FAILED;
+//        return TRUE;
+//    }
+//
+//    *val = ntag->rx_buffer[RX_START+0];
+//    return FALSE;
+//}
 
-    ntag->tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
-    ntag->tx_buffer[TX_START+1] = reg;
+//BOOL NTAG_WriteRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t val)
+//{
+//    ntag->tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
+//    ntag->tx_buffer[TX_START+1] = reg;
+//    ntag->tx_buffer[TX_START+2] = mask;
+//    ntag->tx_buffer[TX_START+3] = val;
+//
+//    if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 4) )
+//    {
+//        ntag->status = NTAG_ERROR_TX_FAILED;
+//        return TRUE;
+//    }
+//
+//    return FALSE;
+//}
 
-    /* send block number */
-    if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 2) )
-    {
-        ntag->status = NTAG_ERROR_TX_FAILED;
-        return TRUE;
-    }
+#define NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF            0x02
 
-    /* receive bytes */
-    if( HAL_I2C_OK != HAL_I2C_RecvBytes(ntag->i2cbus, ntag->address, ntag->rx_buffer, 1) )
-    {
-        ntag->status = NTAG_ERROR_RX_FAILED;
-        return TRUE;
-    }
+#define NTAG_BLOCK_SIZE                                0x10
 
-    *val = ntag->rx_buffer[RX_START+0];
-    return FALSE;
-}
-
-BOOL NTAG_WriteRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t val)
-{
-    ntag->tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
-    ntag->tx_buffer[TX_START+1] = reg;
-    ntag->tx_buffer[TX_START+2] = mask;
-    ntag->tx_buffer[TX_START+3] = val;
-
-    if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 4) )
-    {
-        ntag->status = NTAG_ERROR_TX_FAILED;
-        return TRUE;
-    }
-
-    return FALSE;
-}
-
+#define NTAG_MEM_BLOCK_START_ADDR_USER_MEMORY          0x01
+#define NTAG_MEM_START_ADDR_USER_MEMORY                NTAG_MEM_BLOCK_START_ADDR_USER_MEMORY*NTAG_BLOCK_SIZE
 
 int main() {
     osThreadCreate(osThread(led_thread), NULL);
@@ -267,23 +273,88 @@ int main() {
         char reg[18] = {0};
         reg[0] = 0x05;
 
+        int TX_START = 1;
+        uint8_t tx_buffer[32];
+
+//        tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
+//        tx_buffer[TX_START+1] = NTAG_MEM_OFFSET_NC_REG;
+//        tx_buffer[TX_START+2] = NTAG_NC_REG_MASK_TR_SRAM_ON_OFF;
+//        tx_buffer[TX_START+3] = ~NTAG_NC_REG_MASK_TR_SRAM_ON_OFF;
+
+
+        tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
+        tx_buffer[TX_START+1] = 0x00;
+
+        if( 0 != nfc_i2c.write(0xAB,(char *)tx_buffer, 2) )
+        {
+//            printf("error\r\n");
+        }
+
+        uint8_t rx_buffer;// = {0};
+        /* receive bytes */
+        if( 0 != nfc_i2c.read(0xAB, (char *)rx_buffer, 1))
+        {
+//            printf("error\r\n");
+        }
+
+//        printf("The reg is %x\r\n", rx_buffer);
+        if (rx_buffer & NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF)
+        {
+            printf("sram enabled\r\n");
+            rx_buffer &= ~NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF;
+            tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
+            tx_buffer[TX_START+1] = NTAG_MEM_OFFSET_NC_REG;
+            tx_buffer[TX_START+2] = NTAG_NC_REG_MASK_TR_SRAM_ON_OFF;
+            tx_buffer[TX_START+3] = rx_buffer;
+
+            int ret = nfc_i2c.write(0xAA, (char *)tx_buffer, 4);
+        }
+        else
+        {
+            printf("the sram off \r\n");
+            rx_buffer |= NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF;
+
         tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
         tx_buffer[TX_START+1] = NTAG_MEM_OFFSET_NC_REG;
         tx_buffer[TX_START+2] = NTAG_NC_REG_MASK_TR_SRAM_ON_OFF;
-        tx_buffer[TX_START+3] = ~NTAG_NC_REG_MASK_TR_SRAM_ON_OFF;
+        tx_buffer[TX_START+3] = rx_buffer;
+
+            int ret = nfc_i2c.write(0xAA, (char *)tx_buffer, 4);
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            size_t i = 0;
+
+            uint8_t block = NTAG_MEM_START_ADDR_USER_MEMORY % NTAG_BLOCK_SIZE
+            tx_buffer[TX_START] = block;
+
+            /* send block number */
+            if( 0 != nfc_i2c.write(0xAA, (char *)tx_buffer, 1) )
+            {
+                printf("write lock\r\n");
+            }
 
 
-        int ret = -1;
-        ret = nfc_i2c.write(0xAB, reg, 1);
+//            /* receive bytes */
+//            if( HAL_I2C_OK != HAL_I2C_RecvBytes(ntag->i2cbus, ntag->address, ntag->rx_buffer, NTAG_BLOCK_SIZE) )
+//            {
+//                ntag->status = NTAG_ERROR_RX_FAILED;
+//                return TRUE;
+//            }
 
-//        printf("write ret %d \r\n", ret);
-        ret =  nfc_i2c.read(0xAB, &reg[1], 5);
-        printf("the reg values %x, %x, %d\r\n", reg[2], reg, ret);
+        }
+
+
+//        int ret = -1;
+//        ret = nfc_i2c.write(0xAB, (char *)tx_buffer, 1);
+//
+////        printf("write ret %d \r\n", ret);
+//        ret =  nfc_i2c.read(0xAB, &reg[1], 5);
+//        printf("the reg values %x, %x, %d\r\n", reg[2], reg, ret);
 //        printf("read ret %d \r\n", ret);
 //        NTAG_ReadRegister(ntag_handle, NFC_GET_VERSION, reg);
 
 //        dbg_dump("NFC", reg, 7);
-        printf("\r\n");
+//        printf("\r\n");
         wait(1);
     }
     // prepare defined state for SRAM
