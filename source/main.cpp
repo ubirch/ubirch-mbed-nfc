@@ -3,14 +3,19 @@
 //#include <rfid_api_full.h>
 //#include <ntag_driver_intern.h>
 //#include <curses.h>
+#include "../NTAG_I2C_API/src/inc/rfid_api_full.h"
 #include "mbed.h"
-//#include "../NTAG_I2C_API/src/HAL_I2C/inc/HAL_I2C_driver.h"
+//#include "nfc_defines.h"
+
+//#include "../NTAG_I2C_API/src/HAL_I2C/inc/HAL_I2C_K82.h"
+#include "../NTAG_I2C_API/src/HAL_I2C/inc/HAL_I2C_driver.h"
 //#include "../NTAG_I2C_API/src/HAL_NTAG/inc/ntag_driver.h"
-//#include "../NTAG_I2C_API/src/HAL_NTAG/inc/ntag_defines.h
+
+#include "../NTAG_I2C_API/src/HAL_NTAG/inc/ntag_bridge.h"
 
 //################################################
-#ifndef NFC_DEVICE_H
-#define NFC_DEVICE_H
+//#ifndef NFC_DEVICE_H
+//#define NFC_DEVICE_H
 
 #if 0
 //#define HAVE_NTAG_INTERRUPT 0
@@ -102,13 +107,44 @@ void dbg_dump(const char *prefix, const uint8_t *b, size_t size) {
     }
 }
 
-#if 0
+//#if 1
 
 extern "C" {
 
-HAL_I2C_STATUS_T uNFC_send(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len);
-HAL_I2C_STATUS_T uNFC_recv(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len);
+#  define NFC_TEST_DEVICE         NTAG0
+#  define NFC_ID_MAX_DEVICES      NTAG_ID_MAX_DEVICES
+#  define NFC_INVALID_HANDLE      NTAG_INVALID_HANDLE
+#  define NFC_HANDLE_T            NTAG_HANDLE_T
+#  define NFC_InitDevice          NTAG_InitDevice
+#  define NFC_CloseDevice         NTAG_CloseDevice
+#  define NFC_ReadBytes           NTAG_ReadBytes
+#  define NFC_WriteBytes          NTAG_WriteBytes
+#  define NFC_GetLastError        NTAG_GetLastError
+#  define NFC_WaitForEvent        NTAG_WaitForEvent
+#  define NFC_ReadRegister        NTAG_ReadRegister
+#  define NFC_WriteRegister       NTAG_WriteRegister
 
+#  define NFC_ReadRegister          NTAG_ReadRegister
+#  define NFC_DisableSRAM         NTAG_DisableSRAM
+#  define NFC_EnableSRAM          NTAG_EnableSRAM
+#  define NFC_SetPassThroughRFtoI2C NTAG_SetPassThroughRFtoI2C
+#  define NFC_SetPassThroughRFtoI2C_withEn NTAG_SetPassThroughRFtoI2C_withEn
+#  define NFC_SetPassThroughI2CtoRF NTAG_SetPassThroughI2CtoRF
+
+#  define NFC_BLOCK_SIZE          NTAG_BLOCK_SIZE
+#  define NFC_MEM_SIZE_SRAM          NTAG_MEM_SIZE_SRAM
+#  define NFC_MEM_START_ADDR_SRAM         NTAG_MEM_START_ADDR_SRAM
+#  define NFC_MEM_START_ADDR_USER_MEMORY  NTAG_MEM_START_ADDR_USER_MEMORY
+#  define NFC_MEM_OFFSET_NC_REG   NTAG_MEM_OFFSET_NC_REG
+#  define NFC_MEM_OFFSET_NS_REG   NTAG_MEM_OFFSET_NS_REG
+#  define NFC_NC_REG_MASK_TR_SRAM_ON_OFF  NTAG_NC_REG_MASK_TR_SRAM_ON_OFF
+#  define NFC_NS_REG_MASK_I2C_IF_ON_OFF   NTAG_NS_REG_MASK_I2C_IF_ON_OFF
+
+#define SRAM_TIMEOUT 500
+//HAL_I2C_STATUS_T uNFC_send(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len);
+//HAL_I2C_STATUS_T uNFC_recv(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len);
+
+//extern "C" {
 HAL_I2C_STATUS_T uNFC_send(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len) {
     int ret = nfc_i2c.write(address, (char *) bytes, len);
     return (uint16_t) ret;
@@ -118,80 +154,11 @@ HAL_I2C_STATUS_T uNFC_recv(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *by
     int ret = nfc_i2c.read(address, (char *) bytes, len);
     return (uint16_t) ret;
 }
-
-} // extern "C"
-
-
-HAL_I2C_HANDLE_T i2cbus;
-
-//BOOL theNTAG_ReadRegister (uint8_t reg, uint8_t *val)
-
-BOOL theNTAG_ReadRegister (nNTAG_DEVICE *ntag, uint8_t reg, uint8_t *val)
-{
-        ntag->tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
-        ntag->tx_buffer[TX_START+1] = reg;
-
-        /* send block number */
-        if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 2) )
-        {
-            ntag->status = NTAG_ERROR_TX_FAILED;
-            return TRUE;
-        }
-
-        /* receive bytes */
-        if( HAL_I2C_OK != HAL_I2C_RecvBytes(ntag->i2cbus, ntag->address, ntag->rx_buffer, 1) )
-        {
-            ntag->status = NTAG_ERROR_RX_FAILED;
-            return TRUE;
-        }
-
-        *val = ntag->rx_buffer[RX_START+0];
-        return FALSE;
-//    uint8_t tx_buffer[18];
-//    tx_buffer[0+0] = NTAG_MEM_BLOCK_SESSION_REGS;
-//    tx_buffer[0+1] = reg;
-//
-//    /* send block number */
-//    if( HAL_I2C_OK != uNFC_send(i2cbus, address, tx_buffer, 2) )
-//    {
-////        ntag->status = NTAG_ERROR_TX_FAILED;
-//        return TRUE;
-//    }
-//
-//    /* receive bytes */
-//    if( HAL_I2C_OK != uNFC_recv(ntag->i2cbus, ntag->address, ntag->rx_buffer, 1) )
-//    {
-//        ntag->status = NTAG_ERROR_RX_FAILED;
-//        return TRUE;
-//    }
-//
-//    *val = ntag->rx_buffer[RX_START+0];
-//    return FALSE;
 }
 
-#endif
+//} // extern "C"
 
-//---------------------------------------------------------------------
-//void HW_getTemp(uint8_t Buffer[])
-//{
-////#ifdef Board_Demo_v1_4
-//    uint8_t RX_Buffer[HAL_I2C_RX_RESERVED_BYTES + 2];
-//  uint8_t TX_Buffer[HAL_I2C_TX_RESERVED_BYTES + 1];
-//
-//  /* get temperature value from sensor */
-//  TX_Buffer[HAL_I2C_TX_RESERVED_BYTES + 0] = 0;
-//  HAL_I2C_SendBytes(i2cHandleMaster, TEMP_I2C_ADDRESS >> 1, TX_Buffer, 1);
-//  HAL_I2C_RecvBytes(i2cHandleMaster, TEMP_I2C_ADDRESS >> 1, RX_Buffer, 2);
-//
-//  Buffer[0] = RX_Buffer[HAL_I2C_RX_RESERVED_BYTES + 0];
-//  Buffer[1] = RX_Buffer[HAL_I2C_TX_RESERVED_BYTES + 1];
-////#else
-////    Buffer[0] = 0;
-////    Buffer[1] = 0;
-////    return;
-////#endif
-//}
-
+//#endif
 
 void led_thread(void const *args) {
     while (true) {
@@ -281,6 +248,15 @@ int main() {
 //        tx_buffer[TX_START+2] = NTAG_NC_REG_MASK_TR_SRAM_ON_OFF;
 //        tx_buffer[TX_START+3] = ~NTAG_NC_REG_MASK_TR_SRAM_ON_OFF;
 
+        NTAG_HANDLE_T ntag;
+//        NFC_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, NTAG_NC_REG_MASK_TR_SRAM_ON_OFF,
+//                           NTAG_NC_REG_MASK_TR_SRAM_ON_OFF);
+//        extern "C" {
+
+        NFC_DisableSRAM(ntag);
+
+//            NTAG_EnableSRAM(ntag);
+//        }
 
         tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
         tx_buffer[TX_START+1] = 0x00;
@@ -324,7 +300,7 @@ int main() {
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             size_t i = 0;
 
-            uint8_t block = NTAG_MEM_START_ADDR_USER_MEMORY % NTAG_BLOCK_SIZE
+            uint8_t block = NTAG_MEM_START_ADDR_USER_MEMORY % NTAG_BLOCK_SIZE;
             tx_buffer[TX_START] = block;
 
             /* send block number */
@@ -367,4 +343,4 @@ int main() {
 }
 
 
-#endif
+//#endif
