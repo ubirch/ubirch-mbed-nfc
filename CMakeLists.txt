@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_BUILD_TYPE Debug)
 
-project(NTAG C CXX)
+project(MBED_NFC C CXX)
 
 # == MBED OS 5 settings ==
 set(FEATURES netsocket)
@@ -125,12 +125,12 @@ endforeach ()
 #include_directories(${NTAG})
 
 
-add_executable(ntag source/main.cpp
+add_executable(nfc source/main.cpp
             source/ntag_driver.c
             source/ntag_bridge.c
         )
-target_link_libraries(ntag mbed-os)
+target_link_libraries(nfc mbed-os)
 
-add_custom_target(relay-compile ALL
+add_custom_target(nfc-compile ALL
         COMMAND mbed compile --profile mbed-os/tools/profiles/debug.json
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
