@@ -108,8 +108,6 @@ int main() {
     sram_buf[index++] = 0xFE;
     sram_buf[index++] = 0x00;
 
-    printf("Lets write to the NDEF\r\n");
-
     /*
      * write to eeprom stuff goes here
      */
