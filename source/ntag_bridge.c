@@ -28,8 +28,8 @@
 /***********************************************************************/
 /* INCLUDES                                                            */
 /***********************************************************************/
-#include "HAL_I2C_driver.h"
-#include "ntag_bridge.h"
+#include "inc/HAL_I2C_driver.h"
+#include "inc/ntag_bridge.h"
 /***********************************************************************/
 /* DEFINES                                                             */
 /***********************************************************************/
@@ -47,9 +47,9 @@ static int PT_fail=0;
 /* GLOBAL FUNCTIONS                                                    */
 /***********************************************************************/
 //---------------------------------------------------------------------
-int16_t NTAG_EnablePT(NTAG_HANDLE_T *ntag)
+BOOL NTAG_EnablePT(NTAG_HANDLE_T *ntag)
 {
-	int16_t error_code = NTAG_ERR_OK;
+	int error_code = NTAG_ERR_OK;
 
 	// set start address for SRAM mirror to page 4
 	error_code = NTAG_SetSRAMMirrorLowerPageAddr(ntag,
@@ -69,9 +69,9 @@ int16_t NTAG_EnablePT(NTAG_HANDLE_T *ntag)
 }
 
 //---------------------------------------------------------------------
-int16_t NTAG_DisablePT(NTAG_HANDLE_T *ntag)
+BOOL NTAG_DisablePT(NTAG_HANDLE_T *ntag)
 {
-	int16_t error_code = NTAG_ERR_OK;
+	int error_code = NTAG_ERR_OK;
 	error_code = NTAG_DisableSRAM(ntag);
 	error_code |= NTAG_DisableSRAMMirrorMode(ntag);
 	return ( error_code );
@@ -104,7 +104,7 @@ BOOL NTAG_DisableSRAM(NTAG_HANDLE_T *ntag)
 //---------------------------------------------------------------------
 BOOL NTAG_EnableSRAMMirrorMode(NTAG_HANDLE_T *ntag)
 {
-	int16_t err = NTAG_ERR_OK;
+	int err = NTAG_ERR_OK;
 	uint8_t current_ses_reg = 0;
 	err = NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &current_ses_reg);
 	if (current_ses_reg & NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF)
@@ -127,7 +127,7 @@ BOOL NTAG_EnableSRAMMirrorMode(NTAG_HANDLE_T *ntag)
 //---------------------------------------------------------------------
 BOOL NTAG_DisableSRAMMirrorMode(NTAG_HANDLE_T *ntag)
 {
-	int16_t err = NTAG_ERR_OK;
+	int err = NTAG_ERR_OK;
 	uint8_t current_ses_reg = 0;
 	NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &current_ses_reg);
 
@@ -144,7 +144,7 @@ BOOL NTAG_DisableSRAMMirrorMode(NTAG_HANDLE_T *ntag)
 //---------------------------------------------------------------------
 BOOL NTAG_SetPassThroughI2CtoRF(NTAG_HANDLE_T *ntag)
 {
-	int16_t err = NTAG_ERR_OK;
+	int err = NTAG_ERR_OK;
 	uint8_t current_ses_reg = 0;
 	NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &current_ses_reg);
 
@@ -174,7 +174,7 @@ BOOL NTAG_SetPassThroughI2CtoRF(NTAG_HANDLE_T *ntag)
 //---------------------------------------------------------------------
 BOOL NTAG_SetPassThroughRFtoI2C(NTAG_HANDLE_T *ntag)
 {
-	int16_t err = NTAG_ERR_OK;
+	int err = NTAG_ERR_OK;
 	uint8_t current_ses_reg = 0;
 	NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &current_ses_reg);
 	if (current_ses_reg & NTAG_NC_REG_MASK_RF_WRITE_ON_OFF)
@@ -207,7 +207,7 @@ BOOL NTAG_SetPassThroughRFtoI2C(NTAG_HANDLE_T *ntag)
 //---------------------------------------------------------------------
 BOOL NTAG_GetLastPageNDEFMessage(NTAG_HANDLE_T *ntag, uint8_t *addr)
 {
-	int16_t err = NTAG_ERR_OK;
+	int err = NTAG_ERR_OK;
 	uint8_t current_ses_reg = 0;
 	err = NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_LD_REG, &current_ses_reg);
 	*addr = current_ses_reg;
@@ -217,7 +217,7 @@ BOOL NTAG_GetLastPageNDEFMessage(NTAG_HANDLE_T *ntag, uint8_t *addr)
 //---------------------------------------------------------------------
 BOOL NTAG_SetSRAMMirrorLowerPageAddr(NTAG_HANDLE_T *ntag, uint8_t addr)
 {
-	int16_t err = NTAG_ERR_OK;
+	int err = NTAG_ERR_OK;
 	if (addr > 0x74)
 	{
 		return (NTAG_ERR_INVALID_PARAM);
@@ -229,7 +229,7 @@ BOOL NTAG_SetSRAMMirrorLowerPageAddr(NTAG_HANDLE_T *ntag, uint8_t addr)
 //---------------------------------------------------------------------
 BOOL NTAG_SetWatchdogTime(NTAG_HANDLE_T *ntag, uint16_t time)
 {
-	int16_t err = NTAG_ERR_OK;
+	int err = NTAG_ERR_OK;
 	err = NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_WDT_LS, 0xFF,
 			(uint8_t) (time & 0xFF));
 	if (err != NTAG_ERR_OK)
@@ -243,7 +243,7 @@ BOOL NTAG_SetWatchdogTime(NTAG_HANDLE_T *ntag, uint16_t time)
 //---------------------------------------------------------------------
 BOOL NTAG_GetWatchdogTime(NTAG_HANDLE_T *ntag, uint16_t *time)
 {
-	int16_t err = NTAG_ERR_OK;
+	int err = NTAG_ERR_OK;
 	uint8_t reg = 0;
 	err = NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_WDT_LS, &reg);
 	*time |= (uint16_t) ((reg << 8) & 0xFF00);
@@ -258,7 +258,7 @@ BOOL NTAG_GetWatchdogTime(NTAG_HANDLE_T *ntag, uint16_t *time)
 BOOL NTAG_DefaultRegWriteAccess(NTAG_HANDLE_T *ntag, BOOL i2c, BOOL rf)
 {
 	uint8_t current_ses_reg = 0;
-	int16_t err = NTAG_ERR_OK;
+	int err = NTAG_ERR_OK;
 	err = NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_REG_LOCK, &current_ses_reg);
 	if (err != NTAG_ERR_OK)
 		return (err);

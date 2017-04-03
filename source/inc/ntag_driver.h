@@ -27,6 +27,7 @@
 */
 #ifndef _NTAG_DRIVER_H_
 #define _NTAG_DRIVER_H_
+
 /** @file ntag_driver.h
  * \brief Public interface to access a NTAG I2C tag over I2C.
  */
@@ -37,44 +38,13 @@
 #include <stdint.h>
 #include "ntag_defines.h"
 #include "HAL_I2C_driver.h"
-//#include "mbed.h"
-
-//#include "../ntag_driver_intern.h"
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
-
-/***********************************************************************/
-/* DEFINES                                                             */
-/***********************************************************************/
-//#if 0
-//#define NTAG_INVALID_HANDLE NULL
-//
-//#ifndef API_DESCRIPTION
-/*//#  define NTAG_DEVICE_LIST_BEGIN                     typedef enum \
-//                                                     {
-//#  define NTAG_DEVICE_ENTRY(label, i2c_address, isr)    label
-//#  define NTAG_DEVICE_LIST_END                            , NTAG_ID_MAX_DEVICES \
-//                                                     } NTAG_ID_T;*/
-//#endif /* hide from doxygen */
-//
-///***********************************************************************/
-///* TYPES                                                               */
-///***********************************************************************/
-//#ifndef API_DESCRIPTION
-//NTAG_DEVICE_LIST_BEGIN
-//#  include "ntag_device_list.h"    /* allowed here - generator header */ NTAG_DEVICE_LIST_END
-//#endif /* hide from doxygen */
-//
-//typedef struct NTAG_DEVICE* NTAG_HANDLE_T;
-//
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define TX_START 0
-#define RX_START 0
+#define TX_START HAL_I2C_TX_RESERVED_BYTES
+#define RX_START HAL_I2C_RX_RESERVED_BYTES
 #define NTAG_ADDRESS_SIZE 1
 
 
@@ -114,17 +84,6 @@ struct NTAG_DEVICE {
 };
 
 typedef struct NTAG_DEVICE NTAG_HANDLE_T;
-
-typedef struct NTAG_DEVICE *newNTAG_HANDLE_T;
-
-//NTAG_HANDLE_T NTAG_DEVICE_DEFAULTS =  {
-//        status = NTAG_OK,
-//        .i2cbus = 1,
-//		.address = 0xAA,
-////		.tx_buffer = {0},
-////		.rx_buffer = {0},
-//};
-//#endif
 
 /***********************************************************************/
 /* GLOBAL VARIABLES                                                    */

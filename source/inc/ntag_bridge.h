@@ -58,7 +58,7 @@
 extern "C" {
 #endif
 
-#define BOOL int16_t
+#define BOOL int
 /**
  * \brief enable the I2C<->NFC bridge
  *
@@ -66,7 +66,7 @@ extern "C" {
  * for communication between a NFC device and the I2C bus
  * \return	error code as defined in ntag_defines.h
  */
-int16_t NTAG_EnablePT(NTAG_HANDLE_T *ntag);
+BOOL NTAG_EnablePT(NTAG_HANDLE_T *ntag);
 
 /**
  * \brief disable the I2C<->NFC bridge
@@ -76,7 +76,7 @@ int16_t NTAG_EnablePT(NTAG_HANDLE_T *ntag);
  *
  * \return		error code as defined in ntag_defines.h
  */
-int16_t NTAG_DisablePT(NTAG_HANDLE_T *ntag);
+BOOL NTAG_DisablePT(NTAG_HANDLE_T *ntag);
 
 /**
  * \brief set direction for pass-through mode to RF -> I2C and enables PT

@@ -30,10 +30,10 @@
 /***********************************************************************/
 #include <stddef.h>
 #include <targets/TARGET_Freescale/TARGET_KSDK2_MCUS/TARGET_K82F/drivers/fsl_common.h>
-#include "HAL_timer_driver.h"
-#include "ntag_defines.h"
-#include "ntag_driver.h"
-#include "HAL_I2C_driver.h"
+#include "inc/HAL_timer_driver.h"
+#include "inc/ntag_defines.h"
+#include "inc/ntag_driver.h"
+#include "inc/HAL_I2C_driver.h"
 /***********************************************************************/
 /* DEFINES                                                             */
 /***********************************************************************/
