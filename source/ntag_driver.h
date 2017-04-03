@@ -74,7 +74,7 @@ extern "C" {
 #endif
 
 #define TX_START 0
-#define RX_START 0x01
+#define RX_START 0
 #define NTAG_ADDRESS_SIZE 1
 
 
@@ -113,8 +113,17 @@ struct NTAG_DEVICE {
 	uint8_t rx_buffer[RX_START + NTAG_BLOCK_SIZE];
 };
 
-typedef struct NTAG_DEVICE *NTAG_HANDLE_T;
+typedef struct NTAG_DEVICE NTAG_HANDLE_T;
 
+typedef struct NTAG_DEVICE *newNTAG_HANDLE_T;
+
+//NTAG_HANDLE_T NTAG_DEVICE_DEFAULTS =  {
+//        status = NTAG_OK,
+//        .i2cbus = 1,
+//		.address = 0xAA,
+////		.tx_buffer = {0},
+////		.rx_buffer = {0},
+//};
 //#endif
 
 /***********************************************************************/
@@ -164,7 +173,7 @@ typedef struct NTAG_DEVICE *NTAG_HANDLE_T;
  *
  * \return			TRUE on failure
  */
-int NTAG_ReadBytes(NTAG_HANDLE_T ntag, uint16_t address, uint8_t *bytes, uint16_t len);
+int NTAG_ReadBytes(NTAG_HANDLE_T *ntag, uint16_t address, uint8_t *bytes, uint16_t len);
 
 /**
  * \brief write len number of bytes to the selected NTAG device
@@ -180,7 +189,7 @@ int NTAG_ReadBytes(NTAG_HANDLE_T ntag, uint16_t address, uint8_t *bytes, uint16_
  *
  * \return			TRUE on failure
  */
-int NTAG_WriteBytes(NTAG_HANDLE_T ntag, uint16_t address, const uint8_t *bytes, uint16_t len);
+int NTAG_WriteBytes(NTAG_HANDLE_T *ntag, uint16_t address, const uint8_t *bytes, uint16_t len);
 
 /**
  * \brief read a register from the selected NTAG device
@@ -194,7 +203,7 @@ int NTAG_WriteBytes(NTAG_HANDLE_T ntag, uint16_t address, const uint8_t *bytes, 
  *
  * \return			TRUE on failure
  */
-int NTAG_ReadRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val);
+int NTAG_ReadRegister(NTAG_HANDLE_T *ntag, uint8_t reg, uint8_t *val);
 
 /**
  * \brief write a register of the selected NTAG device
@@ -209,7 +218,7 @@ int NTAG_ReadRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val);
  *
  * \return			TRUE on failure
  */
-int NTAG_WriteRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t val);
+int NTAG_WriteRegister(NTAG_HANDLE_T *ntag, uint8_t reg, uint8_t mask, uint8_t val);
 
 /**
  * \brief wait for selected event
@@ -223,7 +232,7 @@ int NTAG_WriteRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t va
  *
  * \return			TRUE on timeout
  */
-int NTAG_WaitForEvent(NTAG_HANDLE_T ntag, NTAG_EVENT_T event, uint32_t timeout_ms);
+int NTAG_WaitForEvent(NTAG_HANDLE_T *ntag, NTAG_EVENT_T event, uint32_t timeout_ms);
 
 /**
  * \brief get the error code of the last failure
@@ -238,12 +247,12 @@ int NTAG_WaitForEvent(NTAG_HANDLE_T ntag, NTAG_EVENT_T event, uint32_t timeout_m
  *
  * \return			NTAG status code
  */
-NTAG_STATUS_T NTAG_GetLastError(NTAG_HANDLE_T ntag);
+NTAG_STATUS_T NTAG_GetLastError(NTAG_HANDLE_T *ntag);
 
 
-int NTAG_ReadBlock(NTAG_HANDLE_T ntag, uint8_t block, uint8_t *bytes, uint8_t len);
+int NTAG_ReadBlock(NTAG_HANDLE_T *ntag, uint8_t block, uint8_t *bytes, uint8_t len);
 
-int NTAG_WriteBlock(NTAG_HANDLE_T ntag, uint8_t block, const uint8_t *bytes, uint8_t len);
+int NTAG_WriteBlock(NTAG_HANDLE_T *ntag, uint8_t block, const uint8_t *bytes, uint8_t len);
 
 #ifdef __cplusplus
 }

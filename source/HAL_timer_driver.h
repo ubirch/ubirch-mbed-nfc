@@ -33,6 +33,9 @@
 #ifndef _HAL_TIMER_DRIVER_H_
 #define _HAL_TIMER_DRIVER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /***********************************************************************/
 /* INCLUDES                                                            */
 /***********************************************************************/
@@ -82,4 +85,7 @@ void HAL_Timer_delay_ms(uint32_t ms);
  */
 uint32_t HAL_Timer_getTime_ms();
 
+#ifdef __cplusplus
+} //extern "C" {
+#endif
 #endif /* _HAL_TIMER_DRIVER_H_ */

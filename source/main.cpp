@@ -8,6 +8,7 @@
 #include "ntag_driver.h"
 #include "HAL_timer_driver.h"
 #include "HAL_I2C_driver.h"
+#include "ntag_bridge.h"
 
 #define NFC_SDA I2C_SDA
 #define NFC_SCL I2C_SCL
@@ -66,8 +67,11 @@ DigitalOut extPower(PTC8);
 
 int main() {
 
-    NTAG_HANDLE_T ntag;
+    NTAG_HANDLE_T *ntag = new NTAG_HANDLE_T;
 
+//    ntag = &NTAG_DEVICE_DEFAULTS;
+
+    ntag->address = 0xAA;
     osThreadCreate(osThread(led_thread), NULL);
 
     printf("Lets write to the NFC\r\n");
@@ -75,23 +79,159 @@ int main() {
     extPower.write(1);
 
 
-    while(1) {
-        int err = NTAG_ERR_OK;
-        uint8_t current_ses_reg = 0;
-        err = NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &current_ses_reg);
-        if (current_ses_reg & NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF) {
-            current_ses_reg &= ~NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF;
-            err = NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_NC_REG,
-                                     NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF, current_ses_reg);
-            printf("sram on\r\n");
-        } else {
-            current_ses_reg |= NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF;
-            err = NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_NC_REG,
-                                     NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF, current_ses_reg);
-            printf("sram off\r\n");
-        }
-        printf("ss\r\n");
+//    NTAG_EnableSRAM(ntag);
+//    while(1) {
+
+        uint8_t sram_buf[NTAG_MEM_SIZE_SRAM];
+        memset(sram_buf, 0, NTAG_MEM_SIZE_SRAM);
+        uint16_t index = 0;
+        uint8_t reg = 0;
+
+        NTAG_DisableSRAM(ntag);
+//        NTAG_EnableSRAM(ntag);
+
+#if 1
+        // Header of the NDEF Message
+        sram_buf[index++] = 0x03;
+        sram_buf[index++] = 0x1C; // Message length
+        sram_buf[index++] = 0xd1;
+
+        sram_buf[index++] = 0x01; // Text Record
+        sram_buf[index++] = 0x18; // Record length
+        sram_buf[index++] = 0x54;
+        sram_buf[index++] = 0x02;
+
+        sram_buf[index++] = 0x65;
+        sram_buf[index++] = 0x6e;
+
+        sram_buf[index++] = 'U';
+        sram_buf[index++] = 'B';
+        sram_buf[index++] = 'I';
+        sram_buf[index++] = 'R';
+        sram_buf[index++] = 'C';
+        sram_buf[index++] = 'H';
+
+        sram_buf[index++] = 0xFE;
+        sram_buf[index++] = 0x00;
+#endif
+
+#if 0
+
+    // Header of the NDEF Message
+    sram_buf[index++] = 0x03;
+    sram_buf[index++] = 0x1C; // Message length
+    sram_buf[index++] = 0xd1;
+
+    sram_buf[index++] = 0x01; // Text Record
+    sram_buf[index++] = 0x18; // Record length
+    sram_buf[index++] = 0x54;
+    sram_buf[index++] = 0x02;
+
+    sram_buf[index++] = 0x65;
+    sram_buf[index++] = 0x6e;
+
+    char temp[5];
+    uint8_t k;
+
+    memset(temp, 0, 5);
+//    itoa(time1, temp, 10);
+
+    sram_buf[index++] = '(';
+
+    for (k = 0; k < 5 - strlen(temp); k++)
+        sram_buf[index++] = '0';
+
+    for (k = 0; k < strlen(temp); k++)
+        sram_buf[index++] = temp[k];
+
+    sram_buf[index++] = ')';
+
+    memset(temp, 0, 5);
+//    itoa(time2, temp, 10);
+
+    sram_buf[index++] = '(';
+
+    for (k = 0; k < 5 - strlen(temp); k++)
+        sram_buf[index++] = '0';
+
+    for (k = 0; k < strlen(temp); k++)
+        sram_buf[index++] = temp[k];
+
+    sram_buf[index++] = ')';
+
+    memset(temp, 0, 5);
+
+    sram_buf[index++] = '(';
+
+    for (k = 0; k < 5 - strlen(temp); k++)
+        sram_buf[index++] = '0';
+
+    for (k = 0; k < strlen(temp); k++)
+        sram_buf[index++] = temp[k];
+
+    sram_buf[index++] = ')';
+
+// end of NDEF Message
+    sram_buf[index++] = 0xFE;
+    sram_buf[index++] = 0x00;
+#endif
+
+        printf("Lets write to the NDEF\r\n");
+
+        NTAG_WriteBytes(ntag, NTAG_MEM_START_ADDR_USER_MEMORY,
+                       sram_buf, index);
+        NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NS_REG, &reg);
+        while (reg & NTAG_NS_REG_MASK_I2C_IF_ON_OFF) {
+            NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NS_REG, &reg);
+//        }
+//        memset(sram_buf, 0, NTAG_MEM_SIZE_SRAM);
+//        memcpy(&sram_buf[index], "Board Ver.: ", 12);
+//        index = 12;
+//        sram_buf[index++] = 'z';
+//        sram_buf[index++] = '.';
+//        sram_buf[index++] = 'x';
+//        sram_buf[index++] = '\n';
+//
+//        memcpy(&sram_buf[index], "FW    Ver.: ", 12);
+//        index += 12;
+//        sram_buf[index++] = 'z';
+//        sram_buf[index++] = '.';
+//        sram_buf[index++] = 'z';
+//        sram_buf[index++] = '\n';
+//
+//        // write back Version information
+//        NTAG_SetPassThroughI2CtoRF(ntag);
+//        NTAG_WriteBytes(ntag, NTAG_MEM_START_ADDR_SRAM, sram_buf,
+//                       NTAG_MEM_SIZE_SRAM);
+//
+//        while (NTAG_WaitForEvent(ntag, NTAG_EVENT_RF_READ_SRAM_POLLED, 10));
+
+//        NTAG_EnableSRAMMirrorMode(ntag);
+//        wait(3);
     }
+
+
+
+//    while(1) {
+//        int err = NTAG_ERR_OK;
+//        uint8_t current_ses_reg = 0;
+//        err = NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &current_ses_reg);
+//        if (current_ses_reg & NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF) {
+//            printf("sram on %x\r\n", current_ses_reg);
+//            current_ses_reg |= NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF;
+////            current_ses_reg &= ~NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF;
+//            err = NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_NC_REG,
+//                                     NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF, current_ses_reg);
+//        } else {
+//            printf("sram off %x\r\n", current_ses_reg);
+//            current_ses_reg &= ~NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF;
+////            current_ses_reg |= NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF;
+//            err = NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_NC_REG,
+//                                     NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF, current_ses_reg);
+//        }
+//        printf("ss\r\n");
+//        wait(4);
+//    }
 #if 0
 //    while (1) {
         char reg[18] = {0};

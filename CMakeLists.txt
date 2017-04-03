@@ -127,6 +127,7 @@ endforeach ()
 
 add_executable(ntag source/main.cpp
             source/ntag_driver.c
+            source/ntag_bridge.c
         )
 target_link_libraries(ntag mbed-os)
 

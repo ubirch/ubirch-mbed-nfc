@@ -35,6 +35,9 @@
  * the porting guide for further information regarding the functions in
  * this module.
  */
+//#include "mbed.h"
+
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -134,8 +137,31 @@ HAL_I2C_STATUS_T HAL_I2C_SendBytes(HAL_I2C_HANDLE_T i2cbus, uint8_t address, con
 /***********************************************************************/
 
 //#include "../../HAL_I2C/inc/HAL_I2C_K82.h"
+//
+//typedef enum
+//{
+//    I2C_OK,
+//    I2C_INPROGRESS,
+//    I2C_ERROR_NACK,
+//    I2C_ERROR_ARB_LOST,
+//    I2C_CLOSED,
+//    I2C_STATUS_MAX_NUMBER
+//}I2C_STATUS_T;
+//
+//typedef struct I2C_DEVICE
+//{
+//    I2C_STATUS_T status;
+//    uint8_t *bytes;
+//    uint8_t len;
+//    uint8_t active;
+//}I2C_HANDLE_T;
 
-#define HAL_I2C_HANDLE_T            void*
+//static I2C_HANDLE_T i2c_handle = {I2C_CLOSED, NULL, 0, 0};
+//uint8_t I2C_HANDLE_T;
+
+#define HAL_I2C_HANDLE_T            uint8_t
+
+
 
 uint16_t uNFC_recv(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len);
 

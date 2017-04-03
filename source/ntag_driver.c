@@ -87,7 +87,7 @@
 //	}
 //}
 
-int NTAG_ReadBytes(NTAG_HANDLE_T ntag, uint16_t address, uint8_t *bytes, uint16_t len)
+int NTAG_ReadBytes(NTAG_HANDLE_T *ntag, uint16_t address, uint8_t *bytes, uint16_t len)
 {
 	uint16_t bytes_read = 0;
 
@@ -126,7 +126,7 @@ int NTAG_ReadBytes(NTAG_HANDLE_T ntag, uint16_t address, uint8_t *bytes, uint16_
 	return ntag->status;
 }
 
-int NTAG_WriteBytes(NTAG_HANDLE_T ntag, uint16_t address, const uint8_t *bytes, uint16_t len)
+int NTAG_WriteBytes(NTAG_HANDLE_T *ntag, uint16_t address, const uint8_t *bytes, uint16_t len)
 {
 	uint16_t bytes_written = 0;
 
@@ -176,37 +176,41 @@ int NTAG_WriteBytes(NTAG_HANDLE_T ntag, uint16_t address, const uint8_t *bytes, 
 	return ntag->status;
 }
 
-int NTAG_ReadRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val)
+int NTAG_ReadRegister(NTAG_HANDLE_T *ntag, uint8_t reg, uint8_t *val)
 {
 	ntag->tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
 	ntag->tx_buffer[TX_START+1] = reg;
 
-	/* send block number */
+    ntag->address = 0xAB;
+
+    /* send block number */
 	if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 2) )
 	{
 		ntag->status = NTAG_ERROR_TX_FAILED;
-		return TRUE;
+//		return TRUE;
 	}
 
 	/* receive bytes */
 	if( HAL_I2C_OK != HAL_I2C_RecvBytes(ntag->i2cbus, ntag->address, ntag->rx_buffer, 1) )
 	{
 		ntag->status = NTAG_ERROR_RX_FAILED;
-		return TRUE;
+//		return TRUE;
 	}
 
 	*val = ntag->rx_buffer[RX_START+0];
 	return FALSE;
 }
 
-int NTAG_WriteRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t val)
+int NTAG_WriteRegister(NTAG_HANDLE_T *ntag, uint8_t reg, uint8_t mask, uint8_t val)
 {
 	ntag->tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
 	ntag->tx_buffer[TX_START+1] = reg;
 	ntag->tx_buffer[TX_START+2] = mask;
 	ntag->tx_buffer[TX_START+3] = val;
 
-	if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 4) )
+    ntag->address = 0xAA;
+
+    if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 4) )
 	{
 		ntag->status = NTAG_ERROR_TX_FAILED;
 		return TRUE;
@@ -215,7 +219,7 @@ int NTAG_WriteRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t va
 	return FALSE;
 }
 
-int NTAG_WaitForEvent(NTAG_HANDLE_T ntag, NTAG_EVENT_T event, uint32_t timeout_ms)
+int NTAG_WaitForEvent(NTAG_HANDLE_T *ntag, NTAG_EVENT_T event, uint32_t timeout_ms)
 {
 	uint8_t reg = 0;
 	uint8_t reg_mask = 0;
@@ -276,7 +280,7 @@ int NTAG_WaitForEvent(NTAG_HANDLE_T ntag, NTAG_EVENT_T event, uint32_t timeout_m
 	return !(reg & reg_mask);
 }
 
-NTAG_STATUS_T NTAG_GetLastError(NTAG_HANDLE_T ntag)
+NTAG_STATUS_T NTAG_GetLastError(NTAG_HANDLE_T *ntag)
 {
 	return ntag->status;
 }
@@ -284,11 +288,12 @@ NTAG_STATUS_T NTAG_GetLastError(NTAG_HANDLE_T ntag)
 /***********************************************************************/
 /* GLOBAL PRIVATE FUNCTIONS                                            */
 /***********************************************************************/
-int NTAG_ReadBlock(NTAG_HANDLE_T ntag, uint8_t block, uint8_t *bytes, uint8_t len)
+int NTAG_ReadBlock(NTAG_HANDLE_T *ntag, uint8_t block, uint8_t *bytes, uint8_t len)
 {
 	size_t i = 0;
 
 	ntag->tx_buffer[TX_START] = block;
+    ntag->address = 0xAB;
 
 	/* send block number */
 	if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 1) )
@@ -313,13 +318,14 @@ int NTAG_ReadBlock(NTAG_HANDLE_T ntag, uint8_t block, uint8_t *bytes, uint8_t le
 	return FALSE;
 }
 
-int NTAG_WriteBlock(NTAG_HANDLE_T ntag, uint8_t block, const uint8_t *bytes, uint8_t len)
+int NTAG_WriteBlock(NTAG_HANDLE_T *ntag, uint8_t block, const uint8_t *bytes, uint8_t len)
 {
 	uint8_t ns_reg = 0;
 	uint32_t timeout = NTAG_MAX_WRITE_DELAY_MS / 5 + 1;
 	size_t i = 0;
 
 	ntag->tx_buffer[TX_START] = block;
+    ntag->address = 0xAA;
 
 	len = MIN(len, NTAG_BLOCK_SIZE);
 
