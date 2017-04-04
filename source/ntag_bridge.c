@@ -109,13 +109,10 @@ BOOL NTAG_EnableSRAMMirrorMode(NTAG_HANDLE_T *ntag)
 	err = NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &current_ses_reg);
 	if (current_ses_reg & NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF)
 	{
-		printf("enabled  %x\r\n", current_ses_reg);
-//		NTAG_DisableSRAMMirrorMode(ntag);
 		return (err); // already enabled
 	}
 	else
 	{
-		printf("disabled %x\r\n", current_ses_reg);
 		current_ses_reg |= NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF;
 		err = NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_NC_REG,
 				NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF, current_ses_reg);

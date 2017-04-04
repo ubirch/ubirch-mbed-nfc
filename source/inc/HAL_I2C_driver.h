@@ -137,6 +137,8 @@ HAL_I2C_STATUS_T HAL_I2C_SendBytes(HAL_I2C_HANDLE_T i2cbus, uint8_t address, con
 /***********************************************************************/
 
 #define HAL_I2C_HANDLE_T            uint8_t
+#define HAL_DEFAULT_READ_ADDRESS    0xAB
+#define HAL_DEFAULT_WRITE_ADDRESS   0xAA
 
 uint16_t uNFC_recv(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len);
 uint16_t uNFC_send(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len);

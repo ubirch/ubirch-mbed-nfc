@@ -1,4 +1,4 @@
-loadbin ./BUILD/UBIRCH1/GCC_ARM/ntags.bin, 0x0
+loadbin ./BUILD/UBRIDGE/GCC_ARM/ubirch-mbed-nfc.bin, 0x0
 r
 g
 exit

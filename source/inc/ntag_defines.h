@@ -87,12 +87,13 @@ extern "C" {
 //----------------------------------------------------------------------
 ///
 ///  byte offset in session and default register
-#define NTAG_MEM_OFFSET_NC_REG                         0x00
-#define NTAG_MEM_OFFSET_LD_REG                         0x01
-#define NTAG_MEM_OFFSET_SM_REG                         0x02
-#define NTAG_MEM_OFFSET_WDT_LS                         0x03
-#define NTAG_MEM_OFFSET_WDT_MS                         0x04
-#define NTAG_MEM_OFFSET_REG_LOCK                       0x06
+#define NTAG_MEM_OFFSET_NC_REG                         0x00 //NC_REG
+#define NTAG_MEM_OFFSET_LD_REG                         0x01 //LAST_NDEF_BLOCK
+#define NTAG_MEM_OFFSET_SM_REG                         0x02 //SRAM_MIRROR_BLOCK
+#define NTAG_MEM_OFFSET_WDT_LS                         0x03 //WDT_LS
+#define NTAG_MEM_OFFSET_WDT_MS                         0x04 //WDT_MS
+#define NTAG_MEM_OFFSET_I2C_CLOCK_SR                   0x05 //I2C CLOCK STRETCHING
+#define NTAG_MEM_OFFSET_REG_LOCK                       0x06 //
 #define NTAG_MEM_OFFSET_NS_REG                         0x06
 
 //----------------------------------------------------------------------
@@ -117,6 +118,21 @@ extern "C" {
 #define NTAG_NS_REG_MASK_RF_IF_ON_OFF                  0x20
 #define NTAG_NS_REG_MASK_I2C_IF_ON_OFF                 0x40
 #define NTAG_NS_REG_MASK_NDEF_DATA_TRANS               0x80
+
+
+//switch between Interrupt and Polling mode
+//#define INTERRUPT
+#ifdef INTERRUPT
+#define NTAG_EVENT_RF_WROTE_SRAM       NTAG_EVENT_RF_WROTE_SRAM_INTERRUPT
+#define NTAG_EVENT_RF_READ_SRAM        NTAG_EVENT_RF_READ_SRAM_INTERRUPT
+#define NTAG_EVENT_FIELD_DETECTED      NTAG_EVENT_FIELD_DETECTED_INTERRUPT
+#else
+#define NTAG_EVENT_RF_WROTE_SRAM       NTAG_EVENT_RF_WROTE_SRAM_POLLED
+#define NTAG_EVENT_RF_READ_SRAM        NTAG_EVENT_RF_READ_SRAM_POLLED
+#define NTAG_EVENT_FIELD_DETECTED      NTAG_EVENT_FIELD_DETECTED_POLLED
+#endif
+
+#define SRAM_TIMEOUT 500
 
 //----------------------------------------------------------------------
 ///

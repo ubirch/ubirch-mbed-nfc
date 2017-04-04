@@ -29,7 +29,7 @@
 /* INCLUDES                                                            */
 /***********************************************************************/
 #include <stddef.h>
-#include <targets/TARGET_Freescale/TARGET_KSDK2_MCUS/TARGET_K82F/drivers/fsl_common.h>
+#include <fsl_common.h>
 #include "inc/HAL_timer_driver.h"
 #include "inc/ntag_defines.h"
 #include "inc/ntag_driver.h"
@@ -181,20 +181,20 @@ int NTAG_ReadRegister(NTAG_HANDLE_T *ntag, uint8_t reg, uint8_t *val)
 	ntag->tx_buffer[TX_START+0] = NTAG_MEM_BLOCK_SESSION_REGS;
 	ntag->tx_buffer[TX_START+1] = reg;
 
-    ntag->address = 0xAB;
+    ntag->address = HAL_DEFAULT_READ_ADDRESS;
 
     /* send block number */
 	if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 2) )
 	{
 		ntag->status = NTAG_ERROR_TX_FAILED;
-//		return TRUE;
+		return TRUE;
 	}
 
 	/* receive bytes */
 	if( HAL_I2C_OK != HAL_I2C_RecvBytes(ntag->i2cbus, ntag->address, ntag->rx_buffer, 1) )
 	{
 		ntag->status = NTAG_ERROR_RX_FAILED;
-//		return TRUE;
+		return TRUE;
 	}
 
 	*val = ntag->rx_buffer[RX_START+0];
@@ -208,7 +208,7 @@ int NTAG_WriteRegister(NTAG_HANDLE_T *ntag, uint8_t reg, uint8_t mask, uint8_t v
 	ntag->tx_buffer[TX_START+2] = mask;
 	ntag->tx_buffer[TX_START+3] = val;
 
-    ntag->address = 0xAA;
+    ntag->address = HAL_DEFAULT_WRITE_ADDRESS;
 
     if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 4) )
 	{
@@ -293,7 +293,7 @@ int NTAG_ReadBlock(NTAG_HANDLE_T *ntag, uint8_t block, uint8_t *bytes, uint8_t l
 	size_t i = 0;
 
 	ntag->tx_buffer[TX_START] = block;
-    ntag->address = 0xAB;
+    ntag->address = HAL_DEFAULT_READ_ADDRESS;
 
 	/* send block number */
 	if( HAL_I2C_OK != HAL_I2C_SendBytes(ntag->i2cbus, ntag->address, ntag->tx_buffer, 1) )
@@ -325,7 +325,7 @@ int NTAG_WriteBlock(NTAG_HANDLE_T *ntag, uint8_t block, const uint8_t *bytes, ui
 	size_t i = 0;
 
 	ntag->tx_buffer[TX_START] = block;
-    ntag->address = 0xAA;
+    ntag->address = HAL_DEFAULT_WRITE_ADDRESS;
 
 	len = MIN(len, NTAG_BLOCK_SIZE);
 

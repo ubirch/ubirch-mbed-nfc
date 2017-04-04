@@ -1,14 +1,10 @@
 #include "mbed.h"
-#include "inc/ntag_defines.h"
-#include "inc/ntag_driver.h"
-#include "inc/HAL_timer_driver.h"
-#include "inc/HAL_I2C_driver.h"
-#include "inc/ntag_bridge.h"
+#include "../source/inc/ntag_defines.h"
+#include "../source/inc/ntag_driver.h"
+//#include "../source/inc/HAL_timer_driver.h"
+//#include "../source/inc/HAL_I2C_driver.h"
+#include "../source/inc/ntag_bridge.h"
 
-#define NFC_SDA I2C_SDA
-#define NFC_SCL I2C_SCL
-
-I2C nfc_i2c(NFC_SDA, NFC_SCL);
 DigitalInOut led1(LED1);
 DigitalOut extPower(PTC8);
 
@@ -27,31 +23,6 @@ void dbg_dump(const char *prefix, const uint8_t *b, size_t size) {
         printf("\r\n");
     }
 }
-
-/*
- * HAL Function prototype description
- */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void HAL_Timer_delay_ms(uint32_t ms){
-    wait_ms(ms);
-}
-
-uint16_t uNFC_send(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len) {
-    int ret = nfc_i2c.write(address, (char *) bytes, len);
-    return (uint16_t) ret;
-}
-
-uint16_t uNFC_recv(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len) {
-    int ret = nfc_i2c.read(address, (char *) bytes, len);
-    return (uint16_t) ret;
-}
-#ifdef __cplusplus
-}
-#endif
-
 
 void led_thread(void const *args) {
     while (true) {
@@ -76,9 +47,10 @@ int main() {
     memset(sram_buf, 0, NTAG_MEM_SIZE_SRAM);
 
     uint8_t rxbuffer[4 * NTAG_BLOCK_SIZE];
-
+    memset(rxbuffer, 0, 4 * NTAG_BLOCK_SIZE);
     uint16_t index = 0;
     uint8_t reg = 0;
+    int error;
 
     NTAG_DisableSRAM(ntag);
 
@@ -108,11 +80,15 @@ int main() {
     sram_buf[index++] = 0xFE;
     sram_buf[index++] = 0x00;
 
+    wait_ms(100);
+
     /*
      * write to eeprom stuff goes here
      */
-    NTAG_WriteBytes(ntag, NTAG_MEM_START_ADDR_USER_MEMORY,
-                    sram_buf, (uint16_t)(index+1));
+    if(NTAG_WriteBytes(ntag, NTAG_MEM_START_ADDR_USER_MEMORY,
+                    sram_buf, (uint16_t)(index+1))) {
+        printf("Failed to write!!!\r\n");
+    }
     NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NS_REG, &reg);
     while (reg & NTAG_NS_REG_MASK_I2C_IF_ON_OFF) {
         NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NS_REG, &reg);
@@ -126,5 +102,3 @@ int main() {
     dbg_dump("NTAG", rxbuffer, index);
 
 }
-
-
