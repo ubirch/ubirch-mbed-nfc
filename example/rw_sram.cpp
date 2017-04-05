@@ -57,8 +57,6 @@ int main() {
 
     NTAG_DisableSRAM(ntag);
 
-    NTAG_EnableSRAMMirrorMode(ntag);
-
     /*
      * write to sram stuff goes here
      *
@@ -66,29 +64,67 @@ int main() {
      */
     while (1) {
 
-        // Enable Passthrough Mode RF->I2C
-        NTAG_SetPassThroughRFtoI2C(ntag);
+
+        sram_buf[index++] = 'T';
+        sram_buf[index++] = 'B';
+        sram_buf[index++] = 'I';
+        sram_buf[index++] = 'R';
+        sram_buf[index++] = 'C';
+        sram_buf[index++] = 'H';
+
         NTAG_EnableSRAM(ntag);
 
-        // wait for RF Write in the SRAM terminator page
-        while (NTAG_WaitForEvent(ntag, NTAG_EVENT_RF_WROTE_SRAM,
-                                 SRAM_TIMEOUT)) {
-
-            // check if PT is off(happens when NTAG is not in the field anymore)
-            // and switch it back on
-            NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &reg);
-            if (!(reg & NTAG_NC_REG_MASK_TR_SRAM_ON_OFF)) {
-                NTAG_SetPassThroughRFtoI2C_withEn(ntag);
-            }
-        }
-
-        // get the SRAM Data
-        memset(sram_buf, 0, NTAG_MEM_SIZE_SRAM);
-        NTAG_ReadBytes(ntag, NTAG_MEM_START_ADDR_SRAM, sram_buf,
+        NTAG_ReadBytes(ntag, NTAG_MEM_START_ADDR_SRAM, rxbuffer,
                        NTAG_MEM_SIZE_SRAM);
+        dbg_dump("SRAM", rxbuffer, 6);
 
-        dbg_dump("NFCM", sram_buf, 10);
-        wait(3);
+        wait_ms(500);
+
+        sram_buf[index++] = 'T';
+        sram_buf[index++] = 't';
+        sram_buf[index++] = 'l';
+        sram_buf[index++] = 'R';
+        sram_buf[index++] = 'C';
+        sram_buf[index++] = 'H';
+
+        NTAG_WriteBytes(ntag, NTAG_MEM_START_ADDR_SRAM, sram_buf, 6);
+        dbg_dump("WRAM", sram_buf, 6);
+        wait_ms(500);
+
+        NTAG_ReadBytes(ntag, NTAG_MEM_START_ADDR_SRAM, rxbuffer, 6);
+        dbg_dump("RRAM", rxbuffer, 6);
+        wait_ms(500);
+
+        // write back Data
+//        NTAG_SetPassThroughI2CtoRF(ntag);
+
+        // waiting till RF has read
+//        while (NTAG_WaitForEvent(ntag, NTAG_EVENT_RF_READ_SRAM, NTAG_MEM_SIZE_SRAM));
+
+
+//        // Enable Passthrough Mode RF->I2C
+//        NTAG_SetPassThroughRFtoI2C(ntag);
+//        NTAG_EnableSRAM(ntag);
+//
+//        // wait for RF Write in the SRAM terminator page
+//        while (NTAG_WaitForEvent(ntag, NTAG_EVENT_RF_WROTE_SRAM,
+//                                 SRAM_TIMEOUT)) {
+//
+//            // check if PT is off(happens when NTAG is not in the field anymore)
+//            // and switch it back on
+//            NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &reg);
+//            if (!(reg & NTAG_NC_REG_MASK_TR_SRAM_ON_OFF)) {
+//                NTAG_SetPassThroughRFtoI2C_withEn(ntag);
+//            }
+//        }
+//
+//        // get the SRAM Data
+//        memset(sram_buf, 0, NTAG_MEM_SIZE_SRAM);
+//        NTAG_ReadBytes(ntag, NTAG_MEM_START_ADDR_SRAM, sram_buf,
+//                       NTAG_MEM_SIZE_SRAM);
+
+        dbg_dump("NFCM", sram_buf, 6);
+        wait(2);
 
     }
 
