@@ -20,5 +20,3 @@ NTAG_I2C_API/src/HAL_NTAG/tests/*
 NTAG_I2C_API/src/HAL_UCODE/tests/*
 NTAG_I2C_API/*
 
-example/rw_eeprom.*
-example/rw_sram.*

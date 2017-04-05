@@ -3,7 +3,6 @@ cmake-*
 cmake-build-*
 .idea
 BUILD
-#.mbed
 core
 mbed_settings.pyc
 config.h
