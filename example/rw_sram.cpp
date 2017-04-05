@@ -57,6 +57,7 @@ int main() {
 
     NTAG_DisableSRAM(ntag);
 
+
     /*
      * write to sram stuff goes here
      *
@@ -65,12 +66,12 @@ int main() {
     while (1) {
 
 
-        sram_buf[index++] = 'T';
-        sram_buf[index++] = 'B';
-        sram_buf[index++] = 'I';
-        sram_buf[index++] = 'R';
-        sram_buf[index++] = 'C';
-        sram_buf[index++] = 'H';
+//        sram_buf[index++] = 'T';
+//        sram_buf[index++] = 'B';
+//        sram_buf[index++] = 'I';
+//        sram_buf[index++] = 'R';
+//        sram_buf[index++] = 'C';
+//        sram_buf[index++] = 'H';
 
         NTAG_EnableSRAM(ntag);
 
@@ -80,21 +81,57 @@ int main() {
 
         wait_ms(500);
 
-        sram_buf[index++] = 'T';
-        sram_buf[index++] = 't';
-        sram_buf[index++] = 'l';
-        sram_buf[index++] = 'R';
-        sram_buf[index++] = 'C';
-        sram_buf[index++] = 'H';
+//    /* Header of the NDEF Message
+//     * record_len     = message to print + 3
+//     * message_length = record_len + 4
+//     */
+    sram_buf[index++] = 0x03;
+    sram_buf[index++] = 0x0D; // Message length
+    sram_buf[index++] = 0xd1;
 
-        NTAG_WriteBytes(ntag, NTAG_MEM_START_ADDR_SRAM, sram_buf, 6);
-        dbg_dump("WRAM", sram_buf, 6);
+    sram_buf[index++] = 0x01; // Text Record
+    sram_buf[index++] = 0x09; // Record length
+    sram_buf[index++] = 0x54;
+    sram_buf[index++] = 0x02;
+
+    sram_buf[index++] = 0x65;
+    sram_buf[index++] = 0x6e;
+
+    sram_buf[index++] = 'z';
+    sram_buf[index++] = 'B';
+    sram_buf[index++] = 'I';
+    sram_buf[index++] = 'R';
+    sram_buf[index++] = 'C';
+    sram_buf[index++] = 'H';
+
+    sram_buf[index++] = 0xFE;
+    sram_buf[index++] = 0x00;
+
+        NTAG_WriteBytes(ntag, NTAG_MEM_START_ADDR_SRAM, sram_buf, index);
+        dbg_dump("WRAM", sram_buf, index);
         wait_ms(500);
 
         NTAG_ReadBytes(ntag, NTAG_MEM_START_ADDR_SRAM, rxbuffer, 6);
         dbg_dump("RRAM", rxbuffer, 6);
         wait_ms(500);
 
+        NTAG_SetSRAMMirrorLowerPageAddr(ntag, 0x01);
+
+//        NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_SM_REG, 0xFF, 0x01);
+//        NTAG_WriteRegister(ntag, 0x00, 0x42, 0x02);
+        int ret = NTAG_EnableSRAMMirrorMode(ntag);
+        wait_ms(100);
+//        int ret = NTAG_SetPassThroughRFtoI2C(ntag);
+
+//        printf("ret%d\r\n", ret);
+
+        while(1){
+
+            NTAG_ReadBytes(ntag, NTAG_MEM_START_ADDR_SRAM, rxbuffer, 10);
+            dbg_dump("RRAM", rxbuffer, 10);
+            wait_ms(500);
+
+        }
         // write back Data
 //        NTAG_SetPassThroughI2CtoRF(ntag);
 
@@ -123,7 +160,7 @@ int main() {
 //        NTAG_ReadBytes(ntag, NTAG_MEM_START_ADDR_SRAM, sram_buf,
 //                       NTAG_MEM_SIZE_SRAM);
 
-        dbg_dump("NFCM", sram_buf, 6);
+//        dbg_dump("NFCM", sram_buf, 6);
         wait(2);
 
     }
