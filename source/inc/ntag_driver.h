@@ -48,6 +48,7 @@ extern "C" {
 #define NTAG_ADDRESS_SIZE 1
 
 
+
 typedef enum {
 	NTAG_OK,
 	NTAG_ERROR_TX_FAILED,
@@ -85,6 +86,14 @@ struct NTAG_DEVICE {
 
 typedef struct NTAG_DEVICE NTAG_HANDLE_T;
 
+// structure that contains the manufactoring data
+typedef struct {
+	uint8_t  slaveAddr;
+	uint8_t  serialNumber[6];
+	uint8_t  internalData[3];
+	uint16_t lockBytes;
+	uint32_t capabilityContainer;
+} ManufData;
 /***********************************************************************/
 /* GLOBAL VARIABLES                                                    */
 /***********************************************************************/
@@ -212,6 +221,8 @@ NTAG_STATUS_T NTAG_GetLastError(NTAG_HANDLE_T *ntag);
 int NTAG_ReadBlock(NTAG_HANDLE_T *ntag, uint8_t block, uint8_t *bytes, uint8_t len);
 
 int NTAG_WriteBlock(NTAG_HANDLE_T *ntag, uint8_t block, const uint8_t *bytes, uint8_t len);
+
+int NTAG_GetManufData(NTAG_HANDLE_T *ntag, ManufData *manufdata);
 
 #ifdef __cplusplus
 }

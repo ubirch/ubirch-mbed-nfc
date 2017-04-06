@@ -201,6 +201,13 @@ BOOL NTAG_SetPassThroughRFtoI2C(NTAG_HANDLE_T *ntag)
 	return (err);
 }
 
+BOOL NTAG_SetLastPageNDEFMessage(NTAG_HANDLE_T *ntag, uint8_t addr)
+{
+    //When SRAM mirroring is used, the LAST_NDEF_BLOCK must point to USERMEM, not to SRAM
+    return NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_LD_REG, 0xFF, addr); writeRegister(LAST_NDEF_BLOCK, 0xFF, isAddressValid(SRAM, _lastMemBlockWritten) ?
+                                                _lastMemBlockWritten - (SRAM_BASE_ADDR>>4) + _mirrorBaseBlockNr : _lastMemBlockWritten);
+}
+
 //---------------------------------------------------------------------
 BOOL NTAG_GetLastPageNDEFMessage(NTAG_HANDLE_T *ntag, uint8_t *addr)
 {

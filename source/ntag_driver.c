@@ -362,3 +362,17 @@ int NTAG_WriteBlock(NTAG_HANDLE_T *ntag, uint8_t block, const uint8_t *bytes, ui
 
 	return ntag->status;
 }
+
+int NTAG_GetManufData(NTAG_HANDLE_T *ntag, ManufData *manufdata){
+
+    int ret = -1;
+    uint8_t rxbuffer[16];
+
+    for (int i = 0; i < 3 && ret != 0;i++) {
+        ret = NTAG_ReadBytes(ntag, 0x00, rxbuffer, 16);
+    }
+    memcpy(manufdata, rxbuffer, 16);
+
+    return ret;
+}
+
