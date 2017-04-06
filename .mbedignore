@@ -6,18 +6,25 @@ mbed-os-quectel-m66-driver/example/*
 cmake-*
 Debug/*
 
+NTAG_I2C_API/src/HAL_ISR/*
 
 NTAG_I2C_API/src/HAL_BSP11U6x/*
 NTAG_I2C_API/src/HAL_BSP_LPC8xx/*
 NTAG_I2C_API/src/HAL_BSP_WINDOWS/*
+NTAG_I2C_API/src/HAL_BSPLPC11U37H/*
 NTAG_I2C_API/src/HAL_BSPMSP430/*
-NTAG_I2C_API/src/HAL_I2C/*.c
+NTAG_I2C_API/src/HAL_TMR/*
+NTAG_I2C_API/src/HAL_I2C/inc/HAL_I2C_lpc8xx.h
+NTAG_I2C_API/src/HAL_I2C/inc/HAL_I2C_lpc11u6x.h
+NTAG_I2C_API/src/HAL_I2C/inc/HAL_I2C_lpc11u37h.h
+NTAG_I2C_API/src/HAL_I2C/i2c_lpc8xx.c
+NTAG_I2C_API/src/HAL_I2C/i2c_lpc11u6x.c
+NTAG_I2C_API/src/HAL_I2C/i2c_lpc11u37h.c
+NTAG_I2C_API/src/HAL_I2C/i2c_lpcusbsio.c
+NTAG_I2C_API/src/HAL_I2C/i2c_msp430.c
+NTAG_I2C_API/src/HAL_TMR/*
 
-NTAG_I2C_API/*
-
-NTAG_I2C_API/src/HAL_I2C/tests/*
-NTAG_I2C_API/src/HAL_NTAG/tests/*
-NTAG_I2C_API/src/HAL_UCODE/tests/*
-NTAG_I2C_API/*
-
-sme-nt3h1x01-library.git/*
+NTAG_I2C_API/src/UNITY/*
+NTAG_I2C_API/HAL_ISR/isr_lpc8xx.c
+NTAG_I2C_API/HAL_ISR/isr_lpc11u6x.c
+NTAG_I2C_API/HAL_ISR/isr_lpc_intern.h

@@ -25,67 +25,42 @@
 * copies of this code.                                                     *
 ****************************************************************************
 */
+#ifndef _RFID_API_FULL_H_
+#define _RFID_API_FULL_H_
 
-#include "stdint.h"
-/** @file HAL_timer_driver.h
- * \brief Public interface to access the timing hardware.
- */
-#ifndef _HAL_TIMER_DRIVER_H_
-#define _HAL_TIMER_DRIVER_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-/***********************************************************************/
-/* INCLUDES                                                            */
-/***********************************************************************/
 
 /***********************************************************************/
 /* DEFINES                                                             */
 /***********************************************************************/
-/***********************************************************************/
-/* TYPES                                                               */
-/***********************************************************************/
-/***********************************************************************/
-/* GLOBAL VARIABLES                                                    */
-/***********************************************************************/
-/***********************************************************************/
-/* GLOBAL FUNCTION PROTOTYPES                                          */
-/***********************************************************************/
+//#define HAVE_NTAG_INTERRUPT
 
-/**
- * \brief initialize the timing hardware
- *
- * This function prepares the timing hardware to points where calling
- * any of the following delay functions guarantees at least the desired delay
- * time while not blocking indefinitely.
- *
- * \return		none
- */
-void HAL_Timer_Init();
-
-/**
- * \brief wait for the specified number of milliseconds
- *
- * This function delays the current thread of execution for at least the
- * number of specified milliseconds. In tasked or threaded environments
- * this function may additionally yield the CPU.
- *
- * \param	ms	wait time in milliseconds
- * \return		none
- */
-void HAL_Timer_delay_ms(uint32_t ms);
-
-/**
- * \brief returns the current time in ms
- *
- * This function returns the current value of the ms tick timer.
- *
- * \return		current time in ms
- */
-uint32_t HAL_Timer_getTime_ms();
-
-#ifdef __cplusplus
-} //extern "C" {
+/***********************************************************************/
+/* INCLUDES                                                            */
+/***********************************************************************/
+#include "global_types.h"
+#ifdef __LPC11UXX__
+#include "../HAL_BSP11U6x/inc/HAL_BSP_System.h"
+#include "../HAL_ISR/inc/HAL_ISR_driver.h"
 #endif
-#endif /* _HAL_TIMER_DRIVER_H_ */
+#ifdef __LPC11U37H__
+#include "../HAL_BSPLPC11U37H/inc/HAL_BSP_System.h"
+#include "../HAL_ISR/inc/HAL_ISR_driver.h"
+#endif
+#ifdef __LPC8XX__
+#include "../HAL_BSP_LPC8xx/inc/HAL_BSP_System.h"
+#include "../HAL_ISR/inc/HAL_ISR_driver.h"
+#endif
+#ifdef __MSP430F5438A__
+#include "../HAL_BSPMSP430/inc/HAL_BSP_System.h"
+#endif
+#ifdef __WINDOWS_MSVC__
+#include "../HAL_BSP_WINDOWS/inc/HAL_BSP_System.h"
+#endif
+//#include "../HAL_TMR/inc/HAL_timer_driver.h"
+#include "../HAL_I2C/inc/HAL_I2C_driver.h"
+//#include "../HAL_UCODE/inc/ucode_driver.h" // for UCODE I2C SL3S4011
+#include "../HAL_NTAG/inc/ntag_driver.h"   // for NTAG I2C 2k NT3H1201 and NTAG I2C 1k NT3H1101
+#include "../HAL_NTAG/inc/ntag_bridge.h"
+//#include "../HAL_NTAG/inc/tnpi_driver.h"   // for TNPI
+
+#endif /* _RFID_API_FULL_H_ */

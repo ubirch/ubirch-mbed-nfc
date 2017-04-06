@@ -27,7 +27,6 @@
 */
 #ifndef _NTAG_DRIVER_H_
 #define _NTAG_DRIVER_H_
-
 /** @file ntag_driver.h
  * \brief Public interface to access a NTAG I2C tag over I2C.
  */
@@ -35,21 +34,50 @@
 /***********************************************************************/
 /* INCLUDES                                                            */
 /***********************************************************************/
-#include <stdint.h>
+#include "global_types.h"
 #include "ntag_defines.h"
-#include "HAL_I2C_driver.h"
+#include "../../HAL_I2C/inc/HAL_I2C_driver.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define TX_START HAL_I2C_TX_RESERVED_BYTES
-#define RX_START HAL_I2C_RX_RESERVED_BYTES
-#define NTAG_ADDRESS_SIZE 1
+/***********************************************************************/
+/* DEFINES                                                             */
+/***********************************************************************/
+#define NTAG_2k
+//#define NTAG_1k
+#if !defined(NTAG_2k) && !defined(NTAG_1k)
+#error "You have to define either NTAG_2k or NTAG_1k"
+#elif defined(NTAG_2k) && defined(NTAG_1k)
+#error "You can't define NTAG_2k and NTAG_1k"
+#endif
 
 
 
-typedef enum {
+#define NTAG_INVALID_HANDLE NULL
+
+#ifndef API_DESCRIPTION
+#  define NTAG_DEVICE_LIST_BEGIN                     typedef enum \
+                                                     {
+#  define NTAG_DEVICE_ENTRY(label, i2c_address, isr)  	label
+#  define NTAG_DEVICE_LIST_END                        	, NTAG_ID_MAX_DEVICES \
+                                                     } NTAG_ID_T;
+#endif /* hide from doxygen */
+
+/***********************************************************************/
+/* TYPES                                                               */
+/***********************************************************************/
+#ifndef API_DESCRIPTION
+NTAG_DEVICE_LIST_BEGIN
+#  include "ntag_device_list.h"    /* allowed here - generator header */
+NTAG_DEVICE_LIST_END
+#endif /* hide from doxygen */
+
+typedef struct NTAG_DEVICE NTAG_HANDLE_T;//  NTAG_DEVICE;
+
+typedef enum
+{
 	NTAG_OK,
 	NTAG_ERROR_TX_FAILED,
 	NTAG_ERROR_RX_FAILED,
@@ -59,41 +87,16 @@ typedef enum {
 	NTAG_STATUS_MAX_NUMBER
 } NTAG_STATUS_T;
 
-typedef enum {
+//#define HAVE_NTAG_INTERRUPT
+typedef enum
+{
 #ifdef HAVE_NTAG_INTERRUPT
-    NTAG_EVENT_FIELD_DETECTED_INTERRUPT,
-    NTAG_EVENT_RF_WROTE_SRAM_INTERRUPT,
-    NTAG_EVENT_RF_READ_SRAM_INTERRUPT,
-    NTAG_EVENT_FIELD_HI_INTERRUPT,
-    NTAG_EVENT_FIELD_LO_INTERRUPT,
+	NTAG_FD_PIN_STATE_HI,
+	NTAG_FD_PIN_STATE_LO,
 #endif
-	NTAG_EVENT_FIELD_DETECTED_POLLED,
-	NTAG_EVENT_RF_WROTE_SRAM_POLLED,
-	NTAG_EVENT_RF_READ_SRAM_POLLED
-} NTAG_EVENT_T;
+NO_INT,
+} NTAG_FD_STATE_T;
 
-
-struct NTAG_DEVICE {
-	NTAG_STATUS_T status;
-	HAL_I2C_HANDLE_T i2cbus;
-	uint8_t address;
-#ifdef HAVE_NTAG_INTERRUPT
-	ISR_SOURCE_T isr;
-#endif
-	uint8_t tx_buffer[TX_START + NTAG_BLOCK_SIZE + NTAG_ADDRESS_SIZE];
-	uint8_t rx_buffer[RX_START + NTAG_BLOCK_SIZE];
-};
-
-typedef struct NTAG_DEVICE NTAG_HANDLE_T;
-
-// structure that contains the manufactoring data
-typedef struct {
-	uint8_t  slaveAddr;
-	uint8_t  serialNumber[6];
-	uint8_t  internalData[3];
-	uint16_t lockBytes;
-	uint32_t capabilityContainer;
-} ManufData;
 /***********************************************************************/
 /* GLOBAL VARIABLES                                                    */
 /***********************************************************************/
@@ -101,6 +104,24 @@ typedef struct {
 /***********************************************************************/
 /* GLOBAL FUNCTION PROTOTYPES                                          */
 /***********************************************************************/
+
+
+/**
+ * \brief wait till the FD Pin has the selected state
+ *
+ *	This functions waits until the selected event occurs or the timeout value is
+ *	reached. See NTAG_EVENT_T for possible events to be waited on.
+ *	If you want to use the Interrupted Events set the FD function accordingly
+ *	before calling this function. Notice that some Interrupted Events are
+ *	indistinguishable, so it will trigger at a false event.
+ *
+ * \param	ntag      	handle to identify the NTAG device instance
+ * \param	event     	state to be waited for
+ * \param	timeout_ms	timeout value in ms
+ *
+ * \return			TRUE on timeout
+ */
+BOOL NTAG_WaitForFDPinState(NTAG_HANDLE_T ntag, NTAG_FD_STATE_T state, uint32_t timeout_ms);
 
 /**
  * \brief initialize the selected NTAG device for operation
@@ -113,7 +134,7 @@ typedef struct {
  *
  * \return 		 	NTAG_INVALID_HANDLE on failure
  */
-//NTAG_HANDLE_T NTAG_InitDevice(NTAG_ID_T ntag_id, HAL_I2C_HANDLE_T i2cbus);
+NTAG_HANDLE_T NTAG_InitDevice(NTAG_ID_T ntag_id, HAL_I2C_HANDLE_T i2cbus);
 
 /**
  * \brief close handle and unregister I2C bus instance
@@ -125,7 +146,7 @@ typedef struct {
  *
  * \return	none
  */
-//void NTAG_CloseDevice(NTAG_HANDLE_T ntag);
+void NTAG_CloseDevice(NTAG_HANDLE_T ntag);
 
 /**
  * \brief read len number of bytes from the selected NTAG device
@@ -141,7 +162,7 @@ typedef struct {
  *
  * \return			TRUE on failure
  */
-int NTAG_ReadBytes(NTAG_HANDLE_T *ntag, uint16_t address, uint8_t *bytes, uint16_t len);
+BOOL NTAG_ReadBytes (NTAG_HANDLE_T *ntag, uint16_t address,       uint8_t *bytes, uint16_t len);
 
 /**
  * \brief write len number of bytes to the selected NTAG device
@@ -157,7 +178,7 @@ int NTAG_ReadBytes(NTAG_HANDLE_T *ntag, uint16_t address, uint8_t *bytes, uint16
  *
  * \return			TRUE on failure
  */
-int NTAG_WriteBytes(NTAG_HANDLE_T *ntag, uint16_t address, const uint8_t *bytes, uint16_t len);
+BOOL NTAG_WriteBytes(NTAG_HANDLE_T ntag, uint16_t address, const uint8_t *bytes, uint16_t len);
 
 /**
  * \brief read a register from the selected NTAG device
@@ -171,7 +192,7 @@ int NTAG_WriteBytes(NTAG_HANDLE_T *ntag, uint16_t address, const uint8_t *bytes,
  *
  * \return			TRUE on failure
  */
-int NTAG_ReadRegister(NTAG_HANDLE_T *ntag, uint8_t reg, uint8_t *val);
+BOOL NTAG_ReadRegister (NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val);
 
 /**
  * \brief write a register of the selected NTAG device
@@ -181,26 +202,43 @@ int NTAG_ReadRegister(NTAG_HANDLE_T *ntag, uint8_t reg, uint8_t *val);
  *
  * \param	ntag	handle to identify the NTAG device instance
  * \param	reg 	register offset from the start of the register block
- * \param	mask	only selected(1) bits will be written
+ * \param	mask	only bits set to one will be written
  * \param	val 	8-bit value to be written
  *
  * \return			TRUE on failure
  */
-int NTAG_WriteRegister(NTAG_HANDLE_T *ntag, uint8_t reg, uint8_t mask, uint8_t val);
+BOOL NTAG_WriteRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t val);
 
 /**
- * \brief wait for selected event
+ * \brief read the configuration from the selected NTAG device
  *
- *	This functions waits until the selected event occurs or the timeout value is
- *	reached. See NTAG_EVENT_T for possible events to be waited on.
+ *	This functions reads the specified 8-bit value from the selected
+ *	NTAG device.
  *
- * \param	ntag      	handle to identify the NTAG device instance
- * \param	event     	event to be waited for
- * \param	timeout_ms	timeout value in ms
+ * \param	ntag	handle to identify the NTAG device instance
+ * \param	reg 	configuration offset from the start of the mem block
+ * \param	val 	byte to store read value
  *
- * \return			TRUE on timeout
+ * \return			TRUE on failure
  */
-int NTAG_WaitForEvent(NTAG_HANDLE_T *ntag, NTAG_EVENT_T event, uint32_t timeout_ms);
+BOOL NTAG_ReadConfiguration (NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val);
+
+/**
+ * \brief write the configuration of the selected NTAG device
+ *
+ *	This functions writes the specified 8-bit value of the selected
+ *	NTAG device. Only the mask selected bits will be written.
+ *
+ * \param	ntag	handle to identify the NTAG device instance
+ * \param	reg 	configuration offset from the start of the mem block
+ * \param	mask	only bits set to one will be written
+ * \param	val 	8-bit value to be written
+ *
+ * \return			TRUE on failure
+ */
+BOOL NTAG_WriteConfiguration(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t val);
+
+
 
 /**
  * \brief get the error code of the last failure
@@ -215,16 +253,11 @@ int NTAG_WaitForEvent(NTAG_HANDLE_T *ntag, NTAG_EVENT_T event, uint32_t timeout_
  *
  * \return			NTAG status code
  */
-NTAG_STATUS_T NTAG_GetLastError(NTAG_HANDLE_T *ntag);
+NTAG_STATUS_T NTAG_GetLastError(NTAG_HANDLE_T ntag);
 
-
-int NTAG_ReadBlock(NTAG_HANDLE_T *ntag, uint8_t block, uint8_t *bytes, uint8_t len);
-
-int NTAG_WriteBlock(NTAG_HANDLE_T *ntag, uint8_t block, const uint8_t *bytes, uint8_t len);
-
-int NTAG_GetManufData(NTAG_HANDLE_T *ntag, ManufData *manufdata);
 
 #ifdef __cplusplus
 }
 #endif
+
 #endif /* _NTAG_DRIVER_H_ */

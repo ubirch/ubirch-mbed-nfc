@@ -77,51 +77,38 @@ add_library(mbed-os ${MBED_OS_SRCS})
 include_directories(${MBED_OS})
 # == END MBED OS 5 ==
 
-#set(NTAG
-#        NTAG_I2C_API/src/HAL_BSP11U6x
-#        NTAG_I2C_API/src/HAL_BSP_LPC8xx
-#        NTAG_I2C_API/src/HAL_BSP_WINDOWS
-#        NTAG_I2C_API/src/HAL_BSPMSP430
-#        NTAG_I2C_API/src/HAL_I2C
-#        NTAG_I2C_API/src/HAL_ISR
-#        NTAG_I2C_API/src/HAL_NTAG
-#        NTAG_I2C_API/src/HAL_TMR
-#        NTAG_I2C_API/src/HAL_UCODE
-#        NTAG_I2C_API/src/inc
-#        NTAG_I2C_API/src/UNITY
-#        )
-#
-#set(NTAG_I2C_SRC
-#        HAL_BSP11U6x
-#        HAL_BSP_LPC8xx
-#        HAL_BSP_WINDOWS
-#        HAL_BSPMSP430
-#        HAL_I2C
-#        HAL_ISR
-#        HAL_NTAG
-#        HAL_TMR
-#        HAL_UCODE
-#        inc
-#        UNITY
-#        )
-#
-#set(NTAG_SRCS "")
-#foreach (DIR in ${NTAG})
-#            file(GLOB_RECURSE includes
-#                    ${DIR}/*.cpp ${DIR}/*.c ${DIR}/*.s ${DIR}/*.S)
-#            list(APPEND NTAG_SRCS ${includes})
-#endforeach ()
-#
-##add_library(ntag_i2c ${NTAG_SRCS})
-##include_directories(${NTAG})
+set(NTAG
+        NTAG_I2C_API/src/HAL_BSP11U6x
+        NTAG_I2C_API/src/HAL_BSP_LPC8xx
+        NTAG_I2C_API/src/HAL_BSP_WINDOWS
+        NTAG_I2C_API/src/HAL_BSPMSP430
+        NTAG_I2C_API/src/HAL_BSPLPC11U37H
+        NTAG_I2C_API/src/HAL_I2C
+        NTAG_I2C_API/src/HAL_ISR
+        NTAG_I2C_API/src/HAL_NTAG
+        NTAG_I2C_API/src/HAL_TMR
+        NTAG_I2C_API/src/HAL_UCODE
+        NTAG_I2C_API/src/inc
+        NTAG_I2C_API/src/UNITY
+        )
+
+set(NTAG_SRCS "")
+foreach (DIR in ${NTAG})
+            file(GLOB_RECURSE includes
+                    ${DIR}/*.cpp ${DIR}/*.c ${DIR}/*.s ${DIR}/*.S)
+            list(APPEND NTAG_SRCS ${includes})
+endforeach ()
+
+add_library(ntag_i2c ${NTAG_SRCS})
+include_directories(${NTAG})
 
 
 add_executable(nfc example/rw_eeprom.cpp
-            example/rw_sram.cpp
-            source/ntag_driver.c
-            source/ntag_bridge.c
-            source/ntag_interface.cpp)
-target_link_libraries(nfc mbed-os)
+                   example/rw_sram.cpp
+                   example/blink.cpp
+        )
+
+target_link_libraries(nfc mbed-os ntag_i2c)
 
 add_custom_target(nfc-compile ALL
         COMMAND mbed compile --profile mbed-os/tools/profiles/debug.json

@@ -35,16 +35,13 @@
  * the porting guide for further information regarding the functions in
  * this module.
  */
-//#include "mbed.h"
 
-#include <stdint.h>
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "global_types.h"
+
 /***********************************************************************/
 /* API DESCRIPTION                                                     */
 /***********************************************************************/
-#if 0 // API_DESCRIPTION
+#ifdef API_DESCRIPTION
 /*
  * PLEASE MODIFY HAL_I2C_HANDLE_T, STATUS_T AND STATUS_OK TO SUIT YOUR NEED
  * IMPLEMENT HAL_I2C_InitDevice() / HAL_I2C_CloseDevice()
@@ -66,6 +63,7 @@ extern "C" {
 #define HAL_I2C_OK                < e.g. false>
 #define HAL_I2C_RX_RESERVED_BYTES < e.g. 0 >
 #define HAL_I2C_TX_RESERVED_BYTES < e.g. 1 >
+
 
 /**
  * \brief initialize the I2C hardware and return a handle
@@ -133,29 +131,117 @@ HAL_I2C_STATUS_T HAL_I2C_SendBytes(HAL_I2C_HANDLE_T i2cbus, uint8_t address, con
 #endif /* used for doxygen */
 
 /***********************************************************************/
-/* INTERFACING FOR UBIRCH K82 - MACRO BASED EXAMPLE                      */
+/* INTERFACING FOR UBRIDGE - K82 - MACRO BASED EXAMPLE                      */
 /***********************************************************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "../../HAL_I2C/inc/HAL_I2C_K82.h"
 
 #define HAL_I2C_HANDLE_T            uint8_t
-#define HAL_DEFAULT_READ_ADDRESS    0xAB
-#define HAL_DEFAULT_WRITE_ADDRESS   0xAA
-
-uint16_t uNFC_recv(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len);
-uint16_t uNFC_send(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len);
-
 #define HAL_I2C_INIT_PARAM_T        uint32_t
+#define HAL_I2C_INIT_DEFAULT        400000
 #define HAL_I2C_INVALID_HANDLE      NULL
 #define HAL_I2C_STATUS_T            uint16_t
 #define HAL_I2C_OK                  0
-#define HAL_I2C_SendBytes(handle, address, bytes, len) uNFC_send(handle,address,bytes,len)
-#define HAL_I2C_RecvBytes(handle, address, bytes, len) uNFC_recv(handle,address,bytes,len)
+#define HAL_I2C_SendBytes(handle,address,bytes,len)           uNFC_send(handle,address,bytes,len)
+#define HAL_I2C_RecvBytes(handle,address,bytes,len)           uNFC_recv(handle,address,bytes,len)
 #define HAL_I2C_InitDevice          I2CMasterInit
 #define HAL_I2C_CloseDevice(handle) /* not necessary */
 #define HAL_I2C_RX_RESERVED_BYTES   0
-#define HAL_I2C_TX_RESERVED_BYTES   0
+#define HAL_I2C_TX_RESERVED_BYTES   1
 
 #ifdef __cplusplus
 }
 #endif
+
+
+/***********************************************************************/
+/* INTERFACING FOR LPC11U68 - MACRO BASED EXAMPLE                      */
+/***********************************************************************/
+
+#ifdef __LPC11U37H__
+
+#include "../../HAL_I2C/inc/HAL_I2C_lpc11u37h.h"
+
+#define HAL_I2C_HANDLE_T            void*
+#define HAL_I2C_FAKE_HANDLE         (void *) 0xDEADBEEF
+#define HAL_I2C_INIT_PARAM_T        uint32_t
+#define HAL_I2C_INIT_DEFAULT        100000 /*278500 */
+#define HAL_I2C_INVALID_HANDLE      NULL
+#define HAL_I2C_STATUS_T            uint16_t
+#define HAL_I2C_OK                  0
+#define HAL_I2C_SendBytes(handle,address,bytes,len) TransmitPoll((bytes[0] = (address << 1) | 0x00) ? bytes : bytes, len+1)
+#define HAL_I2C_RecvBytes(handle,address,bytes,len) ReceivePoll ((bytes[0] = (address << 1) | 0x01) ? bytes : bytes, len+1)
+#define HAL_I2C_InitDevice          HAL_I2C_FAKE_HANDLE; I2CMasterInit
+#define HAL_I2C_CloseDevice(handle) /* not necessary */
+#define HAL_I2C_RX_RESERVED_BYTES   1
+#define HAL_I2C_TX_RESERVED_BYTES   1
+
+#endif
+
+#ifdef __LPC8XX__
+
+#include "../../HAL_I2C/inc/HAL_I2C_lpc8xx.h"
+
+#define HAL_I2C_HANDLE_T            void*
+#define HAL_I2C_FAKE_HANDLE         (void *) 0xDEADBEEF
+#define HAL_I2C_INIT_PARAM_T        uint32_t
+#define HAL_I2C_INIT_DEFAULT        370000
+#define HAL_I2C_INVALID_HANDLE      NULL
+#define HAL_I2C_STATUS_T            uint16_t
+#define HAL_I2C_OK                  0
+#define HAL_I2C_SendBytes(handle,address,bytes,len) TransmitPoll((bytes[0] = (address << 1) | 0x00) ? bytes : bytes, len+1)
+#define HAL_I2C_RecvBytes(handle,address,bytes,len) ReceivePoll ((bytes[0] = (address << 1) | 0x01) ? bytes : bytes, len+1)
+#define HAL_I2C_InitDevice          HAL_I2C_FAKE_HANDLE; I2CMasterInit
+#define HAL_I2C_CloseDevice(handle) /* not necessary */
+#define HAL_I2C_RX_RESERVED_BYTES   1
+#define HAL_I2C_TX_RESERVED_BYTES   1
+
+#endif /* __LPC8XX__ */
+
+/***********************************************************************/
+/* INTERFACING FOR MSP430F5438A - FUNCTION BASED EXAMPLE               */
+/***********************************************************************/
+#ifdef __MSP430F5438A__
+
+typedef struct I2C_DEVICE*          HAL_I2C_HANDLE_T;
+#define HAL_I2C_INVALID_HANDLE      NULL
+#define HAL_I2C_INIT_DEFAULT        /* not necessary */
+#define HAL_I2C_STATUS_T            BOOL
+#define HAL_I2C_OK                  FALSE
+#define HAL_I2C_RX_RESERVED_BYTES   0
+#define HAL_I2C_TX_RESERVED_BYTES   0
+
+HAL_I2C_HANDLE_T HAL_I2C_InitDevice();
+void HAL_I2C_CloseDevice(HAL_I2C_HANDLE_T);
+
+HAL_I2C_STATUS_T HAL_I2C_RecvBytes(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len);
+HAL_I2C_STATUS_T HAL_I2C_SendBytes(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len);
+
+#endif /* __MSP430F5438A__ */
+
+#ifdef __WINDOWS_MSVC__
+
+#include "lpcusbsio.h"
+#define HAL_I2C_INIT_PARAM_T        I2C_CLOCKRATE_T
+#define HAL_I2C_HANDLE_T            LPC_HANDLE
+#define HAL_I2C_TRANSFER_OPTION     0x000F /* generate start/stop bit, break on nack */
+#define HAL_I2C_INIT_DEFAULT        I2C_CLOCK_STANDARD_MODE
+#define HAL_I2C_INVALID_HANDLE      NULL
+#define HAL_I2C_STATUS_T            int32_t
+#define HAL_I2C_OK                  FALSE
+
+HAL_I2C_HANDLE_T HAL_I2C_InitDevice(HAL_I2C_INIT_PARAM_T bitrate);
+HAL_I2C_STATUS_T HAL_I2C_RecvBytes(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len);
+HAL_I2C_STATUS_T HAL_I2C_SendBytes(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len);
+
+#define HAL_I2C_CloseDevice(x)      /* not necessary */
+
+#define HAL_I2C_RX_RESERVED_BYTES   0
+#define HAL_I2C_TX_RESERVED_BYTES   0
+
+#endif /* __WINDOWS_MSVC__ */
 
 #endif /* _HAL_I2C_DRIVER_H_ */
