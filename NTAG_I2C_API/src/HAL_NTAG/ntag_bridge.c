@@ -29,10 +29,9 @@
 /* INCLUDES                                                            */
 /***********************************************************************/
 #include <stddef.h>
-#include "rfid_api_full.h"
-#include "../HAL_I2C/inc/HAL_I2C_driver.h"
-//#include "HAL_timer_driver.h"
-#include "inc/ntag_bridge.h"
+#include "HAL_I2C_driver.h"
+#include "HAL_timer_driver.h"
+#include "ntag_bridge.h"
 
 /***********************************************************************/
 /* DEFINES                                                             */
@@ -196,12 +195,12 @@ BOOL NTAG_GetI2CRstOnOff(NTAG_HANDLE_T *ntag, BOOL *on) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_SetRFConfigurationWrite(NTAG_HANDLE_T ntag) {
+BOOL NTAG_SetRFConfigurationWrite(NTAG_HANDLE_T *ntag) {
 	return NTAG_WriteConfiguration(ntag, NTAG_MEM_OFFSET_REG_LOCK, 0x01, 0x01);
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_GetRFConfigurationLock(NTAG_HANDLE_T ntag, BOOL *locked) {
+BOOL NTAG_GetRFConfigurationLock(NTAG_HANDLE_T *ntag, BOOL *locked) {
 	uint8_t val;
 	NTAG_ReadConfiguration(ntag, NTAG_MEM_OFFSET_REG_LOCK, &val);
 
@@ -214,12 +213,12 @@ BOOL NTAG_GetRFConfigurationLock(NTAG_HANDLE_T ntag, BOOL *locked) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_SetI2CConfigurationWrite(NTAG_HANDLE_T ntag) {
+BOOL NTAG_SetI2CConfigurationWrite(NTAG_HANDLE_T *ntag) {
 	return NTAG_WriteConfiguration(ntag, NTAG_MEM_OFFSET_REG_LOCK, 0x02, 0x02);
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_GetI2CConfigurationLock(NTAG_HANDLE_T ntag, BOOL *locked) {
+BOOL NTAG_GetI2CConfigurationLock(NTAG_HANDLE_T *ntag, BOOL *locked) {
 	uint8_t val;
 	if (NTAG_ReadConfiguration(ntag, NTAG_MEM_OFFSET_REG_LOCK, &val))
 		return NTAG_ERROR_RX_FAILED;
@@ -233,7 +232,7 @@ BOOL NTAG_GetI2CConfigurationLock(NTAG_HANDLE_T ntag, BOOL *locked) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_GetI2CClockStr(NTAG_HANDLE_T ntag, BOOL *clk) {
+BOOL NTAG_GetI2CClockStr(NTAG_HANDLE_T *ntag, BOOL *clk) {
 	uint8_t val;
 	NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &val);
 
@@ -242,19 +241,19 @@ BOOL NTAG_GetI2CClockStr(NTAG_HANDLE_T ntag, BOOL *clk) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_ReleaseI2CLocked(NTAG_HANDLE_T ntag) {
+BOOL NTAG_ReleaseI2CLocked(NTAG_HANDLE_T *ntag) {
 	return NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_NC_REG,
 	NTAG_NS_REG_MASK_I2C_LOCKED, 0x00);
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_SetFDOnFunction(NTAG_HANDLE_T ntag, NTAG_FD_ON_FUNCTIONS_T func) {
+BOOL NTAG_SetFDOnFunction(NTAG_HANDLE_T *ntag, NTAG_FD_ON_FUNCTIONS_T func) {
 	return NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_NC_REG,
 	NTAG_NC_REG_MASK_FD_ON, func);
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_GetFDOnFunction(NTAG_HANDLE_T ntag, NTAG_FD_ON_FUNCTIONS_T *func) {
+BOOL NTAG_GetFDOnFunction(NTAG_HANDLE_T *ntag, NTAG_FD_ON_FUNCTIONS_T *func) {
 	uint8_t val;
 	NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &val);
 
@@ -263,13 +262,13 @@ BOOL NTAG_GetFDOnFunction(NTAG_HANDLE_T ntag, NTAG_FD_ON_FUNCTIONS_T *func) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_SetFDOffFunction(NTAG_HANDLE_T ntag, NTAG_FD_OFF_FUNCTIONS_T func) {
+BOOL NTAG_SetFDOffFunction(NTAG_HANDLE_T *ntag, NTAG_FD_OFF_FUNCTIONS_T func) {
 	return NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_NC_REG,
 	NTAG_NC_REG_MASK_FD_OFF, func);
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_GetFDOffFunction(NTAG_HANDLE_T ntag, NTAG_FD_OFF_FUNCTIONS_T *func) {
+BOOL NTAG_GetFDOffFunction(NTAG_HANDLE_T *ntag, NTAG_FD_OFF_FUNCTIONS_T *func) {
 	uint8_t val;
 	NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &val);
 
@@ -278,7 +277,7 @@ BOOL NTAG_GetFDOffFunction(NTAG_HANDLE_T ntag, NTAG_FD_OFF_FUNCTIONS_T *func) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_SetPthruOnOff(NTAG_HANDLE_T ntag, BOOL on) {
+BOOL NTAG_SetPthruOnOff(NTAG_HANDLE_T *ntag, BOOL on) {
 	uint8_t val = 0;
 	if (on)
 		val = NTAG_NC_REG_MASK_PTHRU_ON_OFF;
@@ -290,7 +289,7 @@ BOOL NTAG_SetPthruOnOff(NTAG_HANDLE_T ntag, BOOL on) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_GetPthruOnOff(NTAG_HANDLE_T ntag, BOOL *on) {
+BOOL NTAG_GetPthruOnOff(NTAG_HANDLE_T *ntag, BOOL *on) {
 	uint8_t val;
 	NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &val);
 
@@ -299,7 +298,7 @@ BOOL NTAG_GetPthruOnOff(NTAG_HANDLE_T ntag, BOOL *on) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_SetSRAMMirrorOnOff(NTAG_HANDLE_T ntag, BOOL on) {
+BOOL NTAG_SetSRAMMirrorOnOff(NTAG_HANDLE_T *ntag, BOOL on) {
 	uint8_t val = 0;
 	if (on)
 		val = NTAG_NC_REG_MASK_SRAM_MIRROR_ON_OFF;
@@ -311,7 +310,7 @@ BOOL NTAG_SetSRAMMirrorOnOff(NTAG_HANDLE_T ntag, BOOL on) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_GetSRAMMirrorOnOff(NTAG_HANDLE_T ntag, BOOL *on) {
+BOOL NTAG_GetSRAMMirrorOnOff(NTAG_HANDLE_T *ntag, BOOL *on) {
 	uint8_t val;
 	NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &val);
 
@@ -320,7 +319,7 @@ BOOL NTAG_GetSRAMMirrorOnOff(NTAG_HANDLE_T ntag, BOOL *on) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_SetTransferDir(NTAG_HANDLE_T ntag, NTAG_TRANSFER_DIR_T dir) {
+BOOL NTAG_SetTransferDir(NTAG_HANDLE_T *ntag, NTAG_TRANSFER_DIR_T dir) {
 	int16_t err = NTAG_ERR_OK;
 	uint8_t current_ses_reg = 0;
 	NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &current_ses_reg);
@@ -342,7 +341,7 @@ BOOL NTAG_SetTransferDir(NTAG_HANDLE_T ntag, NTAG_TRANSFER_DIR_T dir) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_GetTransferDir(NTAG_HANDLE_T ntag, NTAG_TRANSFER_DIR_T *dir) {
+BOOL NTAG_GetTransferDir(NTAG_HANDLE_T *ntag, NTAG_TRANSFER_DIR_T *dir) {
 	uint8_t current_ses_reg = 0;
 	NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_NC_REG, &current_ses_reg);
 	*dir = (current_ses_reg & NTAG_NC_REG_MASK_TRANSFER_DIR);
@@ -351,7 +350,7 @@ BOOL NTAG_GetTransferDir(NTAG_HANDLE_T ntag, NTAG_TRANSFER_DIR_T *dir) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_SetLastNDEFBlock(NTAG_HANDLE_T ntag, uint8_t block) {
+BOOL NTAG_SetLastNDEFBlock(NTAG_HANDLE_T *ntag, uint8_t block) {
 	int16_t err = NTAG_ERR_OK;
 	if (block > 0x74) {
 		return (NTAG_ERR_INVALID_PARAM);
@@ -362,7 +361,7 @@ BOOL NTAG_SetLastNDEFBlock(NTAG_HANDLE_T ntag, uint8_t block) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_GetLastNDEFBlock(NTAG_HANDLE_T ntag, uint8_t *block) {
+BOOL NTAG_GetLastNDEFBlock(NTAG_HANDLE_T *ntag, uint8_t *block) {
 	int16_t err = NTAG_ERR_OK;
 	uint8_t current_ses_reg = 0;
 	err = NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_LAST_NDEF_BLOCK,
@@ -372,7 +371,7 @@ BOOL NTAG_GetLastNDEFBlock(NTAG_HANDLE_T ntag, uint8_t *block) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_SetSRAMMirrorBlock(NTAG_HANDLE_T ntag, uint8_t block) {
+BOOL NTAG_SetSRAMMirrorBlock(NTAG_HANDLE_T *ntag, uint8_t block) {
 	int16_t err = NTAG_ERR_OK;
 	err = NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_SRAM_MIRROR_BLOCK, 0xFF,
 			block);
@@ -380,7 +379,7 @@ BOOL NTAG_SetSRAMMirrorBlock(NTAG_HANDLE_T ntag, uint8_t block) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_GetSRAMMirrorBlock(NTAG_HANDLE_T ntag, uint8_t *block) {
+BOOL NTAG_GetSRAMMirrorBlock(NTAG_HANDLE_T *ntag, uint8_t *block) {
 	int16_t err = NTAG_ERR_OK;
 	uint8_t current_ses_reg = 0;
 	err = NTAG_ReadRegister(ntag, NTAG_MEM_OFFSET_SRAM_MIRROR_BLOCK,
@@ -390,7 +389,7 @@ BOOL NTAG_GetSRAMMirrorBlock(NTAG_HANDLE_T ntag, uint8_t *block) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_SetWatchdogTime(NTAG_HANDLE_T ntag, uint16_t time) {
+BOOL NTAG_SetWatchdogTime(NTAG_HANDLE_T *ntag, uint16_t time) {
 	int16_t err = NTAG_ERR_OK;
 	err = NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_WDT_LS, 0xFF,
 			(uint8_t) (time & 0xFF));
@@ -403,7 +402,7 @@ BOOL NTAG_SetWatchdogTime(NTAG_HANDLE_T ntag, uint16_t time) {
 }
 
 //---------------------------------------------------------------------
-BOOL NTAG_GetWatchdogTime(NTAG_HANDLE_T ntag, uint16_t *time) {
+BOOL NTAG_GetWatchdogTime(NTAG_HANDLE_T *ntag, uint16_t *time) {
 	int16_t err = NTAG_ERR_OK;
 	uint8_t reg = 0;
 	*time = 0;

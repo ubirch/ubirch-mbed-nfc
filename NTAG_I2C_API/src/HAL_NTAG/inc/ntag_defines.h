@@ -58,7 +58,7 @@
 #define NTAG_MEM_ADDR_START_SRAM                       NTAG_MEM_BLOCK_START_SRAM * NTAG_I2C_BLOCK_SIZE
 
 #define NTAG_MEM_SRAM_BLOCKS                           4
-#define NTAG_MEM_SRAM_SIZE                             NTAG_MEM_SRAM_BLOCKS * NTAG_I2C_BLOCK_SIZE
+#define NTAG_MEM_SRAM_SIZE                             64 //NTAG_MEM_SRAM_BLOCKS * NTAG_I2C_BLOCK_SIZE
 
 //----------------------------------------------------------------------
 ///

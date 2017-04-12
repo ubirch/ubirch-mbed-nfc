@@ -78,6 +78,18 @@ include_directories(${MBED_OS})
 # == END MBED OS 5 ==
 
 set(NTAG
+        NTAG_I2C_API/src/HAL_BSP11U6x/inc
+        NTAG_I2C_API/src/HAL_BSP_LPC8xx/inc
+        NTAG_I2C_API/src/HAL_BSP_WINDOWS/inc
+        NTAG_I2C_API/src/HAL_BSPMSP430/inc
+        NTAG_I2C_API/src/HAL_BSPLPC11U37H/inc
+        NTAG_I2C_API/src/HAL_I2C/inc
+        NTAG_I2C_API/src/HAL_ISR/inc
+        NTAG_I2C_API/src/HAL_NTAG/inc
+        NTAG_I2C_API/src/HAL_TMR/inc
+        NTAG_I2C_API/src/HAL_UCODE/inc
+        NTAG_I2C_API/src/inc/inc
+        NTAG_I2C_API/src/UNITY/inc
         NTAG_I2C_API/src/HAL_BSP11U6x
         NTAG_I2C_API/src/HAL_BSP_LPC8xx
         NTAG_I2C_API/src/HAL_BSP_WINDOWS
@@ -90,6 +102,7 @@ set(NTAG
         NTAG_I2C_API/src/HAL_UCODE
         NTAG_I2C_API/src/inc
         NTAG_I2C_API/src/UNITY
+        NTAG_I2C_API/
         )
 
 set(NTAG_SRCS "")

@@ -33,9 +33,9 @@ struct NTAG_DEVICE
 	NTAG_STATUS_T status;
 	HAL_I2C_HANDLE_T i2cbus;
 	uint8_t address;
-//#ifdef HAVE_NTAG_INTERRUPT
-//	ISR_SOURCE_T isr;
-//#endif
+#ifdef HAVE_NTAG_INTERRUPT
+	ISR_SOURCE_T isr;
+#endif
 	uint8_t tx_buffer[TX_START+NTAG_I2C_BLOCK_SIZE+NTAG_ADDRESS_SIZE];
 	uint8_t rx_buffer[RX_START+NTAG_I2C_BLOCK_SIZE];
 };
@@ -81,6 +81,6 @@ BOOL NTAG_ReadBlock (NTAG_HANDLE_T *ntag, uint8_t block,       uint8_t *bytes, u
  *
  * \return			TRUE on failure
  */
-BOOL NTAG_WriteBlock(NTAG_HANDLE_T ntag, uint8_t block, const uint8_t *bytes, uint8_t len);
+BOOL NTAG_WriteBlock(NTAG_HANDLE_T *ntag, uint8_t block, const uint8_t *bytes, uint8_t len);
 
 #endif /* _NTAG_DRIVER_INTERN_H_ */

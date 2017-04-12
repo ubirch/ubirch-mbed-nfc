@@ -144,7 +144,7 @@ BOOL NTAG_GetI2CRstOnOff(NTAG_HANDLE_T *ntag, BOOL *on);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_SetRFConfigurationWrite(NTAG_HANDLE_T ntag);
+BOOL NTAG_SetRFConfigurationWrite(NTAG_HANDLE_T *ntag);
 
 /**
  * \brief Gets the Lock status of the RF Configuration Lock
@@ -155,7 +155,7 @@ BOOL NTAG_SetRFConfigurationWrite(NTAG_HANDLE_T ntag);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_GetRFConfigurationLock(NTAG_HANDLE_T ntag, BOOL *locked);
+BOOL NTAG_GetRFConfigurationLock(NTAG_HANDLE_T *ntag, BOOL *locked);
 
 /**
  * \brief Locks the write of the Configuration from I2C, note that this is
@@ -165,7 +165,7 @@ BOOL NTAG_GetRFConfigurationLock(NTAG_HANDLE_T ntag, BOOL *locked);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_SetI2CConfigurationWrite(NTAG_HANDLE_T ntag);
+BOOL NTAG_SetI2CConfigurationWrite(NTAG_HANDLE_T *ntag);
 
 /**
  * \brief Gets the Lock status of the I2C Configuration Lock
@@ -176,7 +176,7 @@ BOOL NTAG_SetI2CConfigurationWrite(NTAG_HANDLE_T ntag);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_GetI2CConfigurationLock(NTAG_HANDLE_T ntag, BOOL *locked);
+BOOL NTAG_GetI2CConfigurationLock(NTAG_HANDLE_T *ntag, BOOL *locked);
 
 /**
  * \brief get the I2C_CLOCK_STR
@@ -186,7 +186,7 @@ BOOL NTAG_GetI2CConfigurationLock(NTAG_HANDLE_T ntag, BOOL *locked);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_GetI2CClockStr(NTAG_HANDLE_T ntag, BOOL *clk);
+BOOL NTAG_GetI2CClockStr(NTAG_HANDLE_T *ntag, BOOL *clk);
 
 /**
  * \brief Sets the I2C_LOCKED bit to 0 to free the LOCK immediately
@@ -195,7 +195,7 @@ BOOL NTAG_GetI2CClockStr(NTAG_HANDLE_T ntag, BOOL *clk);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_ReleaseI2CLocked(NTAG_HANDLE_T ntag);
+BOOL NTAG_ReleaseI2CLocked(NTAG_HANDLE_T *ntag);
 
 /**
  * \brief set the transfer direction
@@ -208,7 +208,7 @@ BOOL NTAG_ReleaseI2CLocked(NTAG_HANDLE_T ntag);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_SetTransferDir(NTAG_HANDLE_T ntag, NTAG_TRANSFER_DIR_T dir);
+BOOL NTAG_SetTransferDir(NTAG_HANDLE_T *ntag, NTAG_TRANSFER_DIR_T dir);
 
 /**
  * \brief get the transfer direction
@@ -218,7 +218,7 @@ BOOL NTAG_SetTransferDir(NTAG_HANDLE_T ntag, NTAG_TRANSFER_DIR_T dir);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_GetTransferDir(NTAG_HANDLE_T ntag, NTAG_TRANSFER_DIR_T *dir);
+BOOL NTAG_GetTransferDir(NTAG_HANDLE_T *ntag, NTAG_TRANSFER_DIR_T *dir);
 
 /**
  * \brief set the FD ON function
@@ -228,7 +228,7 @@ BOOL NTAG_GetTransferDir(NTAG_HANDLE_T ntag, NTAG_TRANSFER_DIR_T *dir);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_SetFDOnFunction(NTAG_HANDLE_T ntag, NTAG_FD_ON_FUNCTIONS_T func);
+BOOL NTAG_SetFDOnFunction(NTAG_HANDLE_T *ntag, NTAG_FD_ON_FUNCTIONS_T func);
 
 /**
  * \brief get the FD ON function
@@ -238,7 +238,7 @@ BOOL NTAG_SetFDOnFunction(NTAG_HANDLE_T ntag, NTAG_FD_ON_FUNCTIONS_T func);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_GetFDOnFunction(NTAG_HANDLE_T ntag, NTAG_FD_ON_FUNCTIONS_T *func);
+BOOL NTAG_GetFDOnFunction(NTAG_HANDLE_T *ntag, NTAG_FD_ON_FUNCTIONS_T *func);
 
 
 /**
@@ -249,7 +249,7 @@ BOOL NTAG_GetFDOnFunction(NTAG_HANDLE_T ntag, NTAG_FD_ON_FUNCTIONS_T *func);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_SetFDOffFunction(NTAG_HANDLE_T ntag, NTAG_FD_OFF_FUNCTIONS_T func);
+BOOL NTAG_SetFDOffFunction(NTAG_HANDLE_T *ntag, NTAG_FD_OFF_FUNCTIONS_T func);
 
 /**
  * \brief get the FD OFF function
@@ -259,7 +259,7 @@ BOOL NTAG_SetFDOffFunction(NTAG_HANDLE_T ntag, NTAG_FD_OFF_FUNCTIONS_T func);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_GetFDOffFunction(NTAG_HANDLE_T ntag, NTAG_FD_OFF_FUNCTIONS_T *func);
+BOOL NTAG_GetFDOffFunction(NTAG_HANDLE_T *ntag, NTAG_FD_OFF_FUNCTIONS_T *func);
 
 /**
  * \brief enable/disable the I2C<->NFC bridge
@@ -272,7 +272,7 @@ BOOL NTAG_GetFDOffFunction(NTAG_HANDLE_T ntag, NTAG_FD_OFF_FUNCTIONS_T *func);
  *
  * \return	error code as defined in ntag_defines.h
  */
-BOOL NTAG_SetPthruOnOff(NTAG_HANDLE_T ntag, BOOL on);
+BOOL NTAG_SetPthruOnOff(NTAG_HANDLE_T *ntag, BOOL on);
 
 /**
  * \brief get the status of the Pthru
@@ -282,7 +282,7 @@ BOOL NTAG_SetPthruOnOff(NTAG_HANDLE_T ntag, BOOL on);
  *
  * \return	error code as defined in ntag_defines.h
  */
-BOOL NTAG_GetPthruOnOff(NTAG_HANDLE_T ntag, BOOL *on);
+BOOL NTAG_GetPthruOnOff(NTAG_HANDLE_T *ntag, BOOL *on);
 
 /**
  * \brief enable/disable SRAM projection to user memory addresses
@@ -292,7 +292,7 @@ BOOL NTAG_GetPthruOnOff(NTAG_HANDLE_T ntag, BOOL *on);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_SetSRAMMirrorOnOff(NTAG_HANDLE_T ntag, BOOL on);
+BOOL NTAG_SetSRAMMirrorOnOff(NTAG_HANDLE_T *ntag, BOOL on);
 
 /**
  * \brief get the status of the SRAM Mirror to user memory
@@ -302,7 +302,7 @@ BOOL NTAG_SetSRAMMirrorOnOff(NTAG_HANDLE_T ntag, BOOL on);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_GetSRAMMirrorOnOff(NTAG_HANDLE_T ntag, BOOL *on);
+BOOL NTAG_GetSRAMMirrorOnOff(NTAG_HANDLE_T *ntag, BOOL *on);
 
 /**
  * \brief change the LAST_NDEF_BLOCK
@@ -314,7 +314,7 @@ BOOL NTAG_GetSRAMMirrorOnOff(NTAG_HANDLE_T ntag, BOOL *on);
  * \param	block	block address, 0x74 is the highest allowed value
  * \return			TRUE on failure*
  */
-BOOL NTAG_SetLastNDEFBlock(NTAG_HANDLE_T ntag, uint8_t block);
+BOOL NTAG_SetLastNDEFBlock(NTAG_HANDLE_T *ntag, uint8_t block);
 
 /**
  * \brief get the LAST_NDEF_BLOCK
@@ -324,7 +324,7 @@ BOOL NTAG_SetLastNDEFBlock(NTAG_HANDLE_T ntag, uint8_t block);
  *
  * \return			TRUE on failure*
  */
-BOOL NTAG_GetLastNDEFBlock(NTAG_HANDLE_T ntag, uint8_t *block);
+BOOL NTAG_GetLastNDEFBlock(NTAG_HANDLE_T *ntag, uint8_t *block);
 
 /**
  * \brief change the first block of user memory for the SRAM Mirror
@@ -336,7 +336,7 @@ BOOL NTAG_GetLastNDEFBlock(NTAG_HANDLE_T ntag, uint8_t *block);
  * \param	block	block to which the SRAM should be mirrored
  * \return			TRUE on failure*
  */
-BOOL NTAG_SetSRAMMirrorBlock(NTAG_HANDLE_T ntag, uint8_t block);
+BOOL NTAG_SetSRAMMirrorBlock(NTAG_HANDLE_T *ntag, uint8_t block);
 
 /**
  * \brief get the first block of user memory for the SRAM Mirror
@@ -345,7 +345,7 @@ BOOL NTAG_SetSRAMMirrorBlock(NTAG_HANDLE_T ntag, uint8_t block);
  * \param	block	block to which the SRAM is mirrored
  * \return			TRUE on failure*
  */
-BOOL NTAG_GetSRAMMirrorBlock(NTAG_HANDLE_T ntag, uint8_t *block);
+BOOL NTAG_GetSRAMMirrorBlock(NTAG_HANDLE_T *ntag, uint8_t *block);
 
 /**
  * \brief change the value of the watchdog timer
@@ -354,7 +354,7 @@ BOOL NTAG_GetSRAMMirrorBlock(NTAG_HANDLE_T ntag, uint8_t *block);
  * \param	time	new time value of the watchdog timer
  * \return			TRUE on failure*
  */
-BOOL NTAG_SetWatchdogTime(NTAG_HANDLE_T ntag, uint16_t time);
+BOOL NTAG_SetWatchdogTime(NTAG_HANDLE_T *ntag, uint16_t time);
 
 /**
  * \brief get the value of the watchdog timer
@@ -363,7 +363,7 @@ BOOL NTAG_SetWatchdogTime(NTAG_HANDLE_T ntag, uint16_t time);
  * \param	time	Watchdog time
  * \return			TRUE on failure*
  */
-BOOL NTAG_GetWatchdogTime(NTAG_HANDLE_T ntag, uint16_t *time);
+BOOL NTAG_GetWatchdogTime(NTAG_HANDLE_T *ntag, uint16_t *time);
 
 
 #ifdef __cplusplus

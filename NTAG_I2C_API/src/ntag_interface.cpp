@@ -3,7 +3,7 @@
 //
 
 #include "mbed.h"
-#include "NTAG_I2C_API/src/HAL_I2C/inc/HAL_I2C_K82.h"
+#include "HAL_I2C_driver.h"
 
 #define NFC_SDA I2C_SDA
 #define NFC_SCL I2C_SCL

@@ -36,7 +36,7 @@
 /***********************************************************************/
 #include "global_types.h"
 #include "ntag_defines.h"
-#include "../../HAL_I2C/inc/HAL_I2C_driver.h"
+#include "HAL_I2C_driver.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,28 +57,28 @@ extern "C" {
 
 #define NTAG_INVALID_HANDLE NULL
 
-#ifndef API_DESCRIPTION
-#  define NTAG_DEVICE_LIST_BEGIN                     typedef enum \
-                                                     {
-#  define NTAG_DEVICE_ENTRY(label, i2c_address, isr)  	label
-#  define NTAG_DEVICE_LIST_END                        	, NTAG_ID_MAX_DEVICES \
-                                                     } NTAG_ID_T;
-#endif /* hide from doxygen */
+//#ifndef API_DESCRIPTION
+//#  define NTAG_DEVICE_LIST_BEGIN                     typedef enum \
+//                                                     {
+//#  define NTAG_DEVICE_ENTRY(label, i2c_address, isr)  	label
+//#  define NTAG_DEVICE_LIST_END                        	, NTAG_ID_MAX_DEVICES \
+//                                                     } NTAG_ID_T;
+//#endif /* hide from doxygen */
 
 /***********************************************************************/
 /* TYPES                                                               */
 /***********************************************************************/
-#ifndef API_DESCRIPTION
-NTAG_DEVICE_LIST_BEGIN
-#  include "ntag_device_list.h"    /* allowed here - generator header */
-NTAG_DEVICE_LIST_END
-#endif /* hide from doxygen */
+//#ifndef API_DESCRIPTION
+//NTAG_DEVICE_LIST_BEGIN
+//#  include "ntag_device_list.h"    /* allowed here - generator header */
+//NTAG_DEVICE_LIST_END
+//#endif /* hide from doxygen */
 
 typedef struct NTAG_DEVICE NTAG_HANDLE_T;//  NTAG_DEVICE;
 
 typedef enum
 {
-	NTAG_OK,
+	NTAG_OK = 0,
 	NTAG_ERROR_TX_FAILED,
 	NTAG_ERROR_RX_FAILED,
 	NTAG_ERROR_WRITE_TIMEOUT,
@@ -121,7 +121,7 @@ NO_INT,
  *
  * \return			TRUE on timeout
  */
-BOOL NTAG_WaitForFDPinState(NTAG_HANDLE_T ntag, NTAG_FD_STATE_T state, uint32_t timeout_ms);
+BOOL NTAG_WaitForFDPinState(NTAG_HANDLE_T *ntag, NTAG_FD_STATE_T state, uint32_t timeout_ms);
 
 /**
  * \brief initialize the selected NTAG device for operation
@@ -134,7 +134,7 @@ BOOL NTAG_WaitForFDPinState(NTAG_HANDLE_T ntag, NTAG_FD_STATE_T state, uint32_t 
  *
  * \return 		 	NTAG_INVALID_HANDLE on failure
  */
-NTAG_HANDLE_T NTAG_InitDevice(NTAG_ID_T ntag_id, HAL_I2C_HANDLE_T i2cbus);
+//NTAG_HANDLE_T NTAG_InitDevice(NTAG_ID_T ntag_id, HAL_I2C_HANDLE_T i2cbus);
 
 /**
  * \brief close handle and unregister I2C bus instance
@@ -146,7 +146,7 @@ NTAG_HANDLE_T NTAG_InitDevice(NTAG_ID_T ntag_id, HAL_I2C_HANDLE_T i2cbus);
  *
  * \return	none
  */
-void NTAG_CloseDevice(NTAG_HANDLE_T ntag);
+void NTAG_CloseDevice(NTAG_HANDLE_T *ntag);
 
 /**
  * \brief read len number of bytes from the selected NTAG device
@@ -178,7 +178,7 @@ BOOL NTAG_ReadBytes (NTAG_HANDLE_T *ntag, uint16_t address,       uint8_t *bytes
  *
  * \return			TRUE on failure
  */
-BOOL NTAG_WriteBytes(NTAG_HANDLE_T ntag, uint16_t address, const uint8_t *bytes, uint16_t len);
+BOOL NTAG_WriteBytes(NTAG_HANDLE_T *ntag, uint16_t address, const uint8_t *bytes, uint16_t len);
 
 /**
  * \brief read a register from the selected NTAG device
@@ -192,7 +192,7 @@ BOOL NTAG_WriteBytes(NTAG_HANDLE_T ntag, uint16_t address, const uint8_t *bytes,
  *
  * \return			TRUE on failure
  */
-BOOL NTAG_ReadRegister (NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val);
+BOOL NTAG_ReadRegister (NTAG_HANDLE_T *ntag, uint8_t reg, uint8_t *val);
 
 /**
  * \brief write a register of the selected NTAG device
@@ -207,7 +207,7 @@ BOOL NTAG_ReadRegister (NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val);
  *
  * \return			TRUE on failure
  */
-BOOL NTAG_WriteRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t val);
+BOOL NTAG_WriteRegister(NTAG_HANDLE_T *ntag, uint8_t reg, uint8_t mask, uint8_t val);
 
 /**
  * \brief read the configuration from the selected NTAG device
@@ -221,7 +221,7 @@ BOOL NTAG_WriteRegister(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t v
  *
  * \return			TRUE on failure
  */
-BOOL NTAG_ReadConfiguration (NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val);
+BOOL NTAG_ReadConfiguration (NTAG_HANDLE_T *ntag, uint8_t reg, uint8_t *val);
 
 /**
  * \brief write the configuration of the selected NTAG device
@@ -236,7 +236,7 @@ BOOL NTAG_ReadConfiguration (NTAG_HANDLE_T ntag, uint8_t reg, uint8_t *val);
  *
  * \return			TRUE on failure
  */
-BOOL NTAG_WriteConfiguration(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint8_t val);
+BOOL NTAG_WriteConfiguration(NTAG_HANDLE_T *ntag, uint8_t reg, uint8_t mask, uint8_t val);
 
 
 
@@ -253,7 +253,7 @@ BOOL NTAG_WriteConfiguration(NTAG_HANDLE_T ntag, uint8_t reg, uint8_t mask, uint
  *
  * \return			NTAG status code
  */
-NTAG_STATUS_T NTAG_GetLastError(NTAG_HANDLE_T ntag);
+NTAG_STATUS_T NTAG_GetLastError(NTAG_HANDLE_T *ntag);
 
 
 #ifdef __cplusplus

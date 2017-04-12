@@ -4,11 +4,13 @@
 /* Read/ WRITE SRAM*/
 #if 1
 #include "mbed.h"
-#include "../source/inc/ntag_defines.h"
-#include "../source/inc/ntag_driver.h"
-#include "../source/inc/HAL_timer_driver.h"
-#include "../source/inc/HAL_I2C_driver.h"
-#include "../source/inc/ntag_bridge.h"
+#include "ntag_defines.h"
+#include "ntag_driver.h"
+#include "HAL_I2C_driver.h"
+#include "ntag_bridge.h"
+
+#include <ntag_driver_intern.h>
+#include "../NTAG_I2C_API/src/inc/global_types.h"
 
 DigitalInOut led1(LED1);
 DigitalOut extPower(PTC8);
@@ -36,6 +38,33 @@ void led_thread(void const *args) {
     }
 }
 
+
+BOOL NTAG_SetSRAMMirrorLowerPageAddr(NTAG_HANDLE_T *ntag, uint8_t addr)
+{
+    int err = NTAG_ERR_OK;
+    if (addr > 0x74)
+    {
+        return (NTAG_ERR_INVALID_PARAM);
+    }
+    err = NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_SRAM_MIRROR_BLOCK, 0xFF, addr);
+    return (err);
+}
+
+//---------------------------------------------------------------------
+BOOL NTAG_EnableSRAM(NTAG_HANDLE_T *ntag)
+{
+    return NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_NC_REG, NTAG_NC_REG_MASK_PTHRU_ON_OFF,
+                              NTAG_NC_REG_MASK_PTHRU_ON_OFF);
+}
+
+//---------------------------------------------------------------------
+BOOL NTAG_DisableSRAM(NTAG_HANDLE_T *ntag)
+{
+    return NTAG_WriteRegister(ntag, NTAG_MEM_OFFSET_NC_REG, NTAG_NC_REG_MASK_PTHRU_ON_OFF,
+                              ~NTAG_NC_REG_MASK_PTHRU_ON_OFF);
+}
+
+
 osThreadDef(led_thread, osPriorityNormal, DEFAULT_STACK_SIZE);
 
 int main() {
@@ -46,24 +75,25 @@ int main() {
 
     extPower.write(1);
 
-    NTAG_HANDLE_T *ntag = new NTAG_HANDLE_T;
+    NTAG_HANDLE_T *ntag_handle = new NTAG_HANDLE_T;
+    ntag_handle->address = 0xAA;
 
-    uint8_t sram_buf[NTAG_MEM_SIZE_SRAM];
-    memset(sram_buf, 0, NTAG_MEM_SIZE_SRAM);
+    uint8_t sram_buf[NTAG_MEM_SRAM_SIZE];
+    memset(sram_buf, 0, NTAG_MEM_SRAM_SIZE);
 
-    uint8_t rxbuffer[4 * NTAG_BLOCK_SIZE];
-    memset(rxbuffer, 0, 4 * NTAG_BLOCK_SIZE);
+    uint8_t rxbuffer[4 * NTAG_I2C_BLOCK_SIZE];
+    memset(rxbuffer, 0, 4 * NTAG_I2C_BLOCK_SIZE);
     uint16_t index = 0;
     uint8_t reg = 0;
 
-    NTAG_DisableSRAM(ntag);
+    NTAG_DisableSRAM(ntag_handle);
 
     while (1) {
 
-        NTAG_EnableSRAM(ntag);
+        NTAG_EnableSRAM(ntag_handle);
 
-        NTAG_ReadBytes(ntag, NTAG_MEM_START_ADDR_SRAM, rxbuffer,
-                       NTAG_MEM_SIZE_SRAM);
+        NTAG_ReadBytes(ntag_handle, NTAG_MEM_ADDR_START_SRAM, rxbuffer,
+                       NTAG_MEM_SRAM_SIZE);
         dbg_dump("SRAM", rxbuffer, 6);
 
         wait_ms(500);
@@ -94,22 +124,36 @@ int main() {
         sram_buf[index++] = 0xFE;
         sram_buf[index++] = 0x00;
 
-        NTAG_WriteBytes(ntag, NTAG_MEM_START_ADDR_SRAM, sram_buf, index);
+        NTAG_WriteBytes(ntag_handle, NTAG_MEM_ADDR_START_SRAM, sram_buf, index);
         dbg_dump("WRAM", sram_buf, index);
         wait_ms(500);
 
-        NTAG_ReadBytes(ntag, NTAG_MEM_START_ADDR_SRAM, rxbuffer, 6);
+        NTAG_ReadBytes(ntag_handle, NTAG_MEM_ADDR_START_SRAM, rxbuffer, 6);
         dbg_dump("RRAM", rxbuffer, 6);
         wait_ms(500);
 
-        NTAG_SetSRAMMirrorLowerPageAddr(ntag, 0x01);
+        NTAG_SetSRAMMirrorLowerPageAddr(ntag_handle, 0x01);
 
-        NTAG_EnableSRAMMirrorMode(ntag);
+        NTAG_SetSRAMMirrorOnOff(ntag_handle, true);
+//            NTAG_EnableSRAMMirrorMode(ntag);
         wait_ms(100);
+
+
+        int ret = -1;
+//        uint8_t rxbuffer[16];
+
+        for (int i = 0; i < 3 && ret != 0; i++) {
+            ret = NTAG_ReadBytes(ntag_handle, 0x00, rxbuffer, 16);
+            dbg_dump("TAKE", rxbuffer, 16);
+            wait_ms(300);
+            printf("%d\r\n", ret);
+            wait_ms(300);
+
+        }
 
         while (1) {
 
-            NTAG_ReadBytes(ntag, NTAG_MEM_START_ADDR_SRAM, rxbuffer, 10);
+            NTAG_ReadBytes(ntag_handle, NTAG_MEM_ADDR_START_SRAM, rxbuffer, 10);
             dbg_dump("RRAM", rxbuffer, 10);
             wait_ms(500);
 

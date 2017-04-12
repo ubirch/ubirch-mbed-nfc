@@ -1,5 +1,6 @@
+#if 0
 #include "mbed.h"
-#include "../source/inc/ntag_defines.h"
+#include "../NTAG_I2C_API/src/HAL_NTAG/inc/ntag_defines.h""
 #include "../source/inc/ntag_driver.h"
 //#include "../source/inc/HAL_timer_driver.h"
 //#include "../source/inc/HAL_I2C_driver.h"
@@ -102,3 +103,5 @@ int main() {
     dbg_dump("NTAG", rxbuffer, index);
 
 }
+
+#endif

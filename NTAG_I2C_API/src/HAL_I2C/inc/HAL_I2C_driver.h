@@ -137,20 +137,39 @@ HAL_I2C_STATUS_T HAL_I2C_SendBytes(HAL_I2C_HANDLE_T i2cbus, uint8_t address, con
 extern "C" {
 #endif
 
-#include "../../HAL_I2C/inc/HAL_I2C_K82.h"
+#include "HAL_I2C_K82.h"
+
 
 #define HAL_I2C_HANDLE_T            uint8_t
+#define HAL_DEFAULT_READ_ADDRESS    0xAB
+#define HAL_DEFAULT_WRITE_ADDRESS   0xAA
+
+uint16_t uNFC_recv(HAL_I2C_HANDLE_T i2cbus, uint8_t address, uint8_t *bytes, uint8_t len);
+uint16_t uNFC_send(HAL_I2C_HANDLE_T i2cbus, uint8_t address, const uint8_t *bytes, uint8_t len);
+
 #define HAL_I2C_INIT_PARAM_T        uint32_t
-#define HAL_I2C_INIT_DEFAULT        400000
 #define HAL_I2C_INVALID_HANDLE      NULL
 #define HAL_I2C_STATUS_T            uint16_t
 #define HAL_I2C_OK                  0
-#define HAL_I2C_SendBytes(handle,address,bytes,len)           uNFC_send(handle,address,bytes,len)
-#define HAL_I2C_RecvBytes(handle,address,bytes,len)           uNFC_recv(handle,address,bytes,len)
+#define HAL_I2C_SendBytes(handle, address, bytes, len) uNFC_send(handle,address,bytes,len)
+#define HAL_I2C_RecvBytes(handle, address, bytes, len) uNFC_recv(handle,address,bytes,len)
 #define HAL_I2C_InitDevice          I2CMasterInit
 #define HAL_I2C_CloseDevice(handle) /* not necessary */
 #define HAL_I2C_RX_RESERVED_BYTES   0
-#define HAL_I2C_TX_RESERVED_BYTES   1
+#define HAL_I2C_TX_RESERVED_BYTES   0
+
+//#define HAL_I2C_HANDLE_T            uint8_t
+//#define HAL_I2C_INIT_PARAM_T        uint32_t
+//#define HAL_I2C_INIT_DEFAULT        400000
+//#define HAL_I2C_INVALID_HANDLE      NULL
+//#define HAL_I2C_STATUS_T            uint16_t
+//#define HAL_I2C_OK                  0
+//#define HAL_I2C_SendBytes(handle,address,bytes,len)           uNFC_send(handle,address,bytes,len)
+//#define HAL_I2C_RecvBytes(handle,address,bytes,len)           uNFC_recv(handle,address,bytes,len)
+//#define HAL_I2C_InitDevice          I2CMasterInit
+//#define HAL_I2C_CloseDevice(handle) /* not necessary */
+//#define HAL_I2C_RX_RESERVED_BYTES   0
+//#define HAL_I2C_TX_RESERVED_BYTES   0
 
 #ifdef __cplusplus
 }
