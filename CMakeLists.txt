@@ -76,6 +76,73 @@ endforeach ()
 add_library(mbed-os ${MBED_OS_SRCS})
 include_directories(${MBED_OS})
 # == END MBED OS 5 ==
+add_library(wolfSSL
+        wolfSSL/src/crl.c
+        wolfSSL/src/internal.c
+        wolfSSL/src/io.c
+        wolfSSL/src/keys.c
+        wolfSSL/src/ocsp.c
+        wolfSSL/src/sniffer.c
+        wolfSSL/src/ssl.c
+        wolfSSL/src/tls.c
+        wolfSSL/wolfcrypt/src/aes.c
+        wolfSSL/wolfcrypt/src/arc4.c
+        wolfSSL/wolfcrypt/src/asm.c
+        wolfSSL/wolfcrypt/src/asn.c
+        wolfSSL/wolfcrypt/src/blake2b.c
+        wolfSSL/wolfcrypt/src/camellia.c
+        wolfSSL/wolfcrypt/src/chacha.c
+        wolfSSL/wolfcrypt/src/chacha20_poly1305.c
+        wolfSSL/wolfcrypt/src/coding.c
+        wolfSSL/wolfcrypt/src/compress.c
+        wolfSSL/wolfcrypt/src/curve25519.c
+        wolfSSL/wolfcrypt/src/des3.c
+        wolfSSL/wolfcrypt/src/dh.c
+        wolfSSL/wolfcrypt/src/dsa.c
+        wolfSSL/wolfcrypt/src/ecc.c
+        wolfSSL/wolfcrypt/src/ecc_fp.c
+        wolfSSL/wolfcrypt/src/ed25519.c
+        wolfSSL/wolfcrypt/src/error.c
+        wolfSSL/wolfcrypt/src/fe_low_mem.c
+        wolfSSL/wolfcrypt/src/fe_operations.c
+        wolfSSL/wolfcrypt/src/ge_low_mem.c
+        wolfSSL/wolfcrypt/src/ge_operations.c
+        wolfSSL/wolfcrypt/src/hash.c
+        wolfSSL/wolfcrypt/src/hc128.c
+        wolfSSL/wolfcrypt/src/hmac.c
+        wolfSSL/wolfcrypt/src/idea.c
+        wolfSSL/wolfcrypt/src/integer.c
+        wolfSSL/wolfcrypt/src/logging.c
+        wolfSSL/wolfcrypt/src/md2.c
+        wolfSSL/wolfcrypt/src/md4.c
+        wolfSSL/wolfcrypt/src/md5.c
+        wolfSSL/wolfcrypt/src/memory.c
+        wolfSSL/wolfcrypt/src/misc.c
+        wolfSSL/wolfcrypt/src/pkcs7.c
+        wolfSSL/wolfcrypt/src/poly1305.c
+        wolfSSL/wolfcrypt/src/pwdbased.c
+        wolfSSL/wolfcrypt/src/rabbit.c
+        wolfSSL/wolfcrypt/src/random.c
+        wolfSSL/wolfcrypt/src/ripemd.c
+        wolfSSL/wolfcrypt/src/rsa.c
+        wolfSSL/wolfcrypt/src/sha.c
+        wolfSSL/wolfcrypt/src/sha256.c
+        wolfSSL/wolfcrypt/src/sha512.c
+        wolfSSL/wolfcrypt/src/signature.c
+        wolfSSL/wolfcrypt/src/srp.c
+        wolfSSL/wolfcrypt/src/tfm.c
+        wolfSSL/wolfcrypt/src/wc_encrypt.c
+        wolfSSL/wolfcrypt/src/wc_port.c
+        )
+target_compile_definitions(wolfSSL PUBLIC -DWOLFSSL_BASE64_ENCODE)
+target_include_directories(wolfSSL PUBLIC wolfSSL)
+
+add_library(CRYPTO crypto/crypto.c)
+target_link_libraries(CRYPTO PUBLIC wolfSSL)
+target_include_directories(CRYPTO PUBLIC crypto)
+
+add_library(JSMN jsmn/jsmn.c)
+target_include_directories(JSMN PUBLIC jsmn)
 
 set(NTAG
         NTAG_I2C_API/src/HAL_BSP11U6x/inc
@@ -118,7 +185,7 @@ include_directories(${NTAG})
 
 add_executable(nfc example/rw_eeprom.cpp
                    example/rw_sram.cpp
-                   example/blink.cpp
+        example/ndef_test.cpp
         )
 
 target_link_libraries(nfc mbed-os ntag_i2c)
